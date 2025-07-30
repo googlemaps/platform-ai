@@ -1,7 +1,9 @@
 {
   "name": "google-maps-platform-ai",
-  "version": "0.1.0",
-  "workspaces": ["packages/code-assist"],
+  "version": "1.0.0",
+  "workspaces": [
+    "packages/code-assist"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/googlemaps/platform-ai.git"
