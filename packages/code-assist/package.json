@@ -14,8 +14,9 @@
     "compile": "tsc index.ts && shx chmod +x dist/*.js",
     "start": "node dist/index.js",
     "build": "bun clean && bun build index.ts --outdir dist --target=node",
-    "prepack": "npm run build",
-    "build:dist": "bun clean && bun build index.ts --outdir dist --target=node --format=cjs --minify && echo '{\"type\": \"commonjs\"}' > dist/package.json && cp README.md CHANGELOG.md dist && zip -r dist_$(date +%Y%m%d).zip dist",
+    "build:prepare": "bun clean && bun build index.ts --outdir dist --target=node --format=cjs --minify && echo '{\"type\": \"commonjs\"}' > dist/package.json && cp README.md CHANGELOG.md dist",
+    "build:dist": "npm run build:prepare && zip -r dist_$(date +%Y%m%d).zip dist",
+    "prepack": "npm run build:prepare",
     "test": "bun test tests/unit.test.ts",
     "test:integration": "bun test tests/integration.test.ts"
   },
