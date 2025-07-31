@@ -60,6 +60,17 @@ The intended use of these tools is to enrich the context of Generative AI models
 
 This tool sends information including the MCP client's query and IP address to a Google-hosted RAG service. Use of this service is subject to the [Google Privacy Policy](https://policies.google.com/privacy).
 
+## Configuration
+
+You can specify a port for the HTTP server using the `--port` flag.
+
+**Example:**
+```sh
+npx -y @googlemaps/code-assist-mcp -- --port 8080
+```
+
+If no port is specified, the server will default to port `3000`. If port `3000` is already in use, it will automatically try the next available port (3001, 3002, and so on).
+
 ## Development
 
 To test that the library will work with `npx` once published, run `npx .` from the package/code-assist root directory. The `package.json` referenced `bin` object specifies the executeable location, and the first line of the built server must contain it's first line as `#!/usr/bin/env node` in order for npx to know that it should use `node` to run the server. The package.json file contains a `build:prepare` script that automatically adds this line to the built server.
