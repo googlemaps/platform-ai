@@ -73,12 +73,16 @@ export function _setUsageInstructions(value: any) {
     usageInstructions = value;
 }
 
-export async function getUsageInstructions(server: Server) {
+export async function getUsageInstructions(server: Server, ip?: string) {
     if (usageInstructions) {
         return usageInstructions;
     }
     try {
-        const ragResponse = await axios.get(ragEndpoint.concat("/instructions"));
+        const headers: Record<string, string> = {};
+        if (ip) {
+            headers['X-Forwarded-For'] = ip;
+        }
+        const ragResponse = await axios.get(ragEndpoint.concat("/instructions"), { headers });
 
         usageInstructions = [
             ragResponse.data.systemInstructions,
@@ -121,19 +125,19 @@ export const getServer = () => {
         resources: [instructionsResource],
     }));
 
-    server.setRequestHandler(ReadResourceRequestSchema, (request) => handleReadResource(request, server));
-    server.setRequestHandler(CallToolRequestSchema, (request) => handleCallTool(request, server));
+    server.setRequestHandler(ReadResourceRequestSchema, (request) => handleReadResource(request, server, ''));
+    server.setRequestHandler(CallToolRequestSchema, (request) => handleCallTool(request, server, ''));
 
     return server;
 };
 
-export async function handleReadResource(request: ReadResourceRequest, server: Server) {
+export async function handleReadResource(request: ReadResourceRequest, server: Server, ip?: string) {
     if (request.params.uri === instructionsResource.uri) {
         server.sendLoggingMessage({
             level: "info",
             data: `Accessing resource: ${request.params.uri}`,
         });
-        const instructions = await getUsageInstructions(server);
+        const instructions = await getUsageInstructions(server, ip);
         if (instructions) {
             return {
                 contents: [{
@@ -152,13 +156,13 @@ export async function handleReadResource(request: ReadResourceRequest, server: S
     };
 }
 
-export async function handleCallTool(request: CallToolRequest, server: Server) {
+export async function handleCallTool(request: CallToolRequest, server: Server, ip?: string) {
     if (request.params.name === "retrieve-instructions") {
         server.sendLoggingMessage({
             level: "info",
             data: `Calling tool: ${request.params.name}`,
         });
-        const instructions = await getUsageInstructions(server);
+        const instructions = await getUsageInstructions(server, ip);
         if (instructions) {
             return {
                 content: [{
@@ -190,10 +194,14 @@ export async function handleCallTool(request: CallToolRequest, server: Server) {
 
             try {
                 // Call the RAG service:
+                const headers: Record<string, string> = {};
+                if (ip) {
+                    headers['X-Forwarded-For'] = ip;
+                }
                 const ragResponse = await axios.post(ragEndpoint.concat("/chat"), {
                     message: prompt,
                     contexts: contexts
-                });
+                }, { headers });
 
                 let mcpResponse = {
                     "response": {
@@ -267,6 +275,10 @@ async function runServer() {
     app.post('/mcp', async (req: Request, res: Response) => {
         const httpServer = getServer();
         try {
+            const ip = req.ip;
+            httpServer.setRequestHandler(ReadResourceRequestSchema, (request) => handleReadResource(request, httpServer, ip));
+            httpServer.setRequestHandler(CallToolRequestSchema, (request) => handleCallTool(request, httpServer, ip));
+
             const httpTransport = new StreamableHTTPServerTransport({
                 sessionIdGenerator: undefined,
             });
