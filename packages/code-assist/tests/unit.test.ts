@@ -77,7 +77,8 @@ describe("Google Maps Platform Code Assist MCP Server", () => {
       expect.stringContaining("/chat"),
       expect.objectContaining({
         message: "How do I add Places New to my mobile app?",
-      })
+      }),
+      { "headers": {} }
     );
   });
   test("getUsageInstructions returns null on error", async () => {
