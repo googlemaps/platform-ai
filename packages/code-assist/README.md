@@ -31,11 +31,15 @@ For any MCP client that supports installation via npm, use the command line to i
 npx -y @googlemaps/code-assist-mcp [--port 3000]
 ```
 
-### **Install via JSON configuration (all other MCP clients)**
+### **Install via JSON configuration**
 
-Most MCP clients have a JSON file for their MCP configuration such as **mcp.json** (e.g. VSCode, Cursor) or **mcp_config.json** (Windsurf). Add the following to the MCP configuration file.
+Most MCP clients have a JSON file for their MCP configuration.
 
-```
+#### **Android Studio**
+
+To add an MCP server in Android Studio, create a `mcp.json` file and place it in the [configuration directory](https://developer.android.com/studio/troubleshoot#directories) of Studio. The `mcp.json` file should follow this format:
+
+```json
 {
   "mcpServers": {
     "google-maps-platform-code-assist": {
@@ -46,7 +50,25 @@ Most MCP clients have a JSON file for their MCP configuration such as **mcp.json
 }
 ```
 
-To deploy it in **Gemini Code Assist** follow these [instructions](https://developers.google.com/gemini-code-assist/docs/use-agentic-chat-pair-programmer#configure-mcp-servers).
+Refer to the documentation for the MCP server you're integrating with for the precise `command` and `args` that you should list in this file. You might also need to install tools such as Node.js or Docker, depending on the MCP server's software requirements.
+
+#### **Gemini CLI**
+
+To configure MCP servers for the Gemini CLI, add the `mcpServers` object to your Gemini settings JSON file located in `~/.gemini/settings.json` (where `~` is your home directory).
+
+The following example adds the Google Maps Platform Code Assist server.
+
+```json
+{
+    "mcpServers": {
+      "google-maps-platform-code-assist": {
+        "command": "npx",
+        "args": ["-y", "@googlemaps/code-assist-mcp", "--port", "3000"]
+      }
+    }
+}
+```
+For more information, see the [Gemini CLI configuration documentation](https://github.com/google-gemini/gemini-cli/blob/main/docs/cli/configuration.md).
 
 ## **Configuration**
 
