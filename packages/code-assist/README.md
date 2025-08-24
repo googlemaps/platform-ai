@@ -8,9 +8,27 @@
 # <img height="48" width="48" src="https://avatars.githubusercontent.com/u/3717923?s=200&v=4" alt="Google Maps Platform Logo" /> Google Maps Platform Code Assist Toolkit 
 *Alpha version*
 
-🪄 Make your favorite AI assistant or IDE a Google Maps Platform expert. With Code Assist, AI Agents like Gemini CLI, Claude Code, and Cursor can generate code and answer developer questions grounded in up-to-date, official Google Maps Platform documentation and code samples -- directly in your dev workflow.
+<!-- [START Description] -->
+## Description
 
-🚀 Whether you are making precision AI-Assisted code changes or vibecoding a new app prototype - Code Assist can help you accomplish your task faster and easier.
+The Google Maps Platform Code Assist toolkit is a Model Context Protocol (MCP) server that enhances the responses from large language models (LLMs) used for developing applications with the Google Maps Platform by grounding the responses in the official, up-to-date documentation and code samples.
+
+Since the MCP server accesses the content when the model is prompted, the LLM's context regarding Google Maps Platform does not have to be limited to the available data at the model's training date.
+
+Google Maps Platform resources that the MCP server can access include:
+
+- Google Maps Platform Documentation
+- Google Maps Platform Terms of Service
+- Google Maps Platform Trust Center
+- Code repositories in Google Maps Platform official GitHub organizations
+<!-- [END Description] -->
+
+<!-- [START CTA_Developers] -->
+## Developers
+
+- 🪄 Make your favorite AI assistant or IDE a Google Maps Platform expert. With Code Assist, AI Agents like Gemini CLI, Claude Code, and Cursor can generate code and answer developer questions grounded in up-to-date, official Google Maps Platform documentation and code samples -- directly in your dev workflow.
+
+- 🚀 Whether you are making precision AI-Assisted code changes or vibecoding a new app prototype - Code Assist can help you accomplish your task faster and easier.
 
 Below is an example MCP Client response to a user's question with Code Assist MCP installed:
 
@@ -18,21 +36,29 @@ Below is an example MCP Client response to a user's question with Code Assist MC
 
 > [\!NOTE]
 > This is the repository for an MCP server that provides access to Google Maps Platform documentation via a RAG service. It is not a Google Maps Platform Core Service.
+<!-- [END CTA_Developers] -->
 
 -----
 
+<!-- [START Tools] -->
 ## 🔧 Tools Provided
 
 The MCP server exposes the following tools for AI clients:
 
   1. **`retrieve-instructions`**: A helper tool used by the client to get crucial system instructions on how to best reason about user intent and formulate effective calls to the `retrieve-google-maps-platform-docs` tool.
   2. **`retrieve-google-maps-platform-docs`**: The primary tool. It takes a natural language query and submits it to a hosted Retrieval Augmented Generation (RAG) engine. The RAG engine searches fresh versions of official Google Maps Platform documentation, tutorials, and code samples, returning relevant context to the AI to generate an accurate response.
+<!-- [END Tools] -->
 
 -----
 
+<!-- [START Local_Setup] -->
 ## 🚀 Usage
 
 You can run the Code Assist MCP server either on your local machine or remotely on Google Cloud Run.
+
+### Requirements
+
+In order to use the Google Maps Platform Code Assist toolkit, you need a local machine with [Node.js](https://nodejs.org/en/download/) (LTS version recommended) and npm installed in order to clone and run the server, as well as an MCP client to access the server.
 
 ### Use as a Local MCP Server (Recommended)
 
@@ -45,7 +71,7 @@ Add the server to your preferred AI client's MCP configuration file. Find your c
 * **[Gemini Code Assist & Gemini CLI](https://developers.google.com/gemini-code-assist/docs/use-agentic-chat-pair-programmer#configure-mcp-servers)**
     * Option 1 - Add the server directly from your command line (assuming you have Gemini CLI already installed):
         ```bash
-         gemini mcp add google-maps-platform-code-assist npx -y @googlemaps/code-assist-mcp
+         gemini mcp add google-maps-platform-code-assist npx -y @googlemaps/code-assist-mcp@latest
         ```
       * Verify the installation by running `gemini mcp list`.
     * Option 2 - Add the MCP server config manually to your `~/.gemini/settings.json` file.
@@ -54,7 +80,7 @@ Add the server to your preferred AI client's MCP configuration file. Find your c
       "mcpServers": {
         "google-maps-platform-code-assist": {
           "command": "npx",
-          "args": ["-y", "@googlemaps/code-assist-mcp"]
+          "args": ["-y", "@googlemaps/code-assist-mcp@latest"]
         }
       }
     }
@@ -63,12 +89,12 @@ Add the server to your preferred AI client's MCP configuration file. Find your c
 * **[Claude Code](https://docs.anthropic.com/en/docs/claude-code/mcp)**
     * Option 1 - Add the server directly from your command line (assuming you have Claude Code already installed):
         ```bash
-            claude mcp add google-maps-platform-code-assist -- npx -y @googlemaps/code-assist-mcp
+            claude mcp add google-maps-platform-code-assist -- npx -y @googlemaps/code-assist@latest
         ```
         * Verify the installation by running `claude mcp list`.
         * **Windows Users:** On native Windows (not WSL), you must use the `cmd /c` wrapper for `npx` commands to work correctly.
         ```bash
-        claude mcp add google-maps-platform-code-assist -- cmd /c "npx -y @googlemaps/code-assist-mcp"
+        claude mcp add google-maps-platform-code-assist -- cmd /c "npx -y @googlemaps/code-assist-mcp@latest"
         ```
     * Option 2 - Add the sever manually to your Claude config file `~/.claude.json`
     ```json
@@ -76,7 +102,7 @@ Add the server to your preferred AI client's MCP configuration file. Find your c
         "google-maps-platform-code-assist": {
           "command": "npx",
           "args": [
-            "-y", "@googlemaps/code-assist-mcp"
+            "-y", "@googlemaps/code-assist-mc@latest"
           ]
         }
       }
@@ -90,7 +116,7 @@ Add the server to your preferred AI client's MCP configuration file. Find your c
       "mcpServers": {
         "google-maps-platform-code-assist": {
           "command": "npx",
-          "args": ["-y", "@googlemaps/code-assist-mcp"]
+          "args": ["-y", "@googlemaps/code-assist-mcp@latest"]
         }
       }
     }
@@ -103,7 +129,7 @@ Add the server to your preferred AI client's MCP configuration file. Find your c
       "mcpServers": {
         "google-maps-platform-code-assist": {
           "command": "npx",
-          "args": ["-y", "@googlemaps/code-assist-mcp"]
+          "args": ["-y", "@googlemaps/code-assist-mcp@latest"]
         }
       }
     }
@@ -116,7 +142,7 @@ Add the server to your preferred AI client's MCP configuration file. Find your c
       "mcpServers": {
         "google-maps-platform-code-assist": {
           "command": "npx",
-          "args": ["-y", "@googlemaps/code-assist-mcp"]
+          "args": ["-y", "@googlemaps/code-assist-mcp@latest"]
         }
       }
     }
@@ -133,12 +159,12 @@ Add the server to your preferred AI client's MCP configuration file. Find your c
               "mcpServers": {
                 "google-maps-platform-code-assist": {
                   "command": "npx",
-                  "args": ["-y", "@googlemaps/code-assist-mcp"],    
-                  "alwaysAllow": [
-                    "retrieve-instructions",
-                    "retrieve-google-maps-platform-docs"
-                  ]
-                }
+                  "args": ["-y", "@googlemaps/code-assist-mcp@latest"]
+                },
+                "alwaysAllow": [
+                  "retrieve-instructions",
+                  "retrieve-google-maps-platform-docs"
+                ]
               }
             }
             ```
@@ -154,7 +180,7 @@ Add the server to your preferred AI client's MCP configuration file. Find your c
               "mcpServers": {
                 "google-maps-platform-code-assist": {
                   "command": "npx",
-                  "args": ["-y", "@googlemaps/code-assist-mcp"]
+                  "args": ["-y", "@googlemaps/code-assist-mcp@latest"]
                 },
                 "alwaysAllow": [
                   "retrieve-instructions",
@@ -180,7 +206,11 @@ Add the server to your preferred AI client's MCP configuration file. Find your c
 * **[Kilo Code](https://kilocode.ai/docs/features/mcp/using-mcp-in-kilo-code)**
     * Similar to the Cline and Roo Code instructions above 
 
+<!-- [END Local_Setup] -->
+
 -----
+
+<!-- [START Remote_Setup] -->
 
 ### Use as a Remote MCP Server
 
@@ -239,9 +269,13 @@ Update your client's MCP configuration to point to the local proxy.
     }
     ```
 
+<!-- [END Remote_Setup] -->
+
 -----
 
-## ⚙️ Configuration
+<!-- [START Settings] -->
+
+## ⚙️ Available Settings
 
 ### Port Configuration
 
@@ -254,7 +288,7 @@ In your `mcp.json`:
 ```json
 "google-maps-platform-code-assist": {
   "command": "npx",
-  "args": ["-y", "@googlemaps/code-assist-mcp", "--port", "5000"]
+  "args": ["-y", "@googlemaps/code-assist-mcp@latest", "--port", "5000"]
 }
 ```
 
@@ -263,7 +297,7 @@ Or with an environment variable:
 ```json
 "google-maps-platform-code-assist": {
   "command": "npx",
-  "args": ["-y", "@googlemaps/code-assist-mcp"],
+  "args": ["-y", "@googlemaps/code-assist-mcp@latest"],
   "env": {
     "PORT": "5000"
   }
@@ -272,7 +306,11 @@ Or with an environment variable:
 
 If the specified port is unavailable, the server will automatically find and start on a random available port.
 
+<!-- [END Settings] -->
+
 -----
+
+<!-- [START Transports] -->
 
 ## 🛠️ Supported MCP Transports
 
@@ -281,7 +319,11 @@ This server supports two standard MCP communication protocols:
   * **`stdio`**: This is the default transport used when a client invokes the server via a `command`. It communicates over the standard input/output streams, making it ideal for local command-line execution.
   * **`Streamable-HTTP`**: The server exposes a `/mcp` endpoint that accepts POST requests. This is used by clients that connect via a `url` and is the standard for remote server connections. Our implementation supports streaming for real-time, interactive responses.
 
+<!-- [END Transports] -->
+
 -----
+
+<!-- [START Terms] -->
 
 ## **Terms of Service**
 
@@ -289,7 +331,11 @@ This toolkit provides tools to describe the use of Google Maps Platform services
 
 This toolkit is not a Google Maps Platform Core Service. Therefore, the Google Maps Platform Terms of Service (e.g. Technical Support Services, Service Level Agreements, and Deprecation Policy) do not apply to the code in this repository or the RAG service called by it.
 
+<!-- [END Terms] -->
+
 ## **Support**
+
+<!-- [START Support] -->
 
 This toolkit is offered via an open source [license](https://github.com/googlemaps/.github/blob/master/LICENSE). It is not governed by the Google Maps Platform Support (Technical Support Services Guidelines, the SLA, or the [Deprecation Policy](https://cloud.google.com/maps-platform/terms)). However, any Google Maps Platform services used by the library remain subject to the Google Maps Platform Terms of Service.
 
@@ -303,3 +349,5 @@ You can also discuss this toolkit on our [Discord server](https://discord.gg/hYs
 <!--constant anchor links-->
 [Discord server]: https://discord.gg/hYsWbmk
 [license]: LICENSE
+
+<!-- [END Support] -->
