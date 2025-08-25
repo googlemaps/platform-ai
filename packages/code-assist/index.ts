@@ -238,6 +238,7 @@ export async function handleCallTool(request: CallToolRequest, server: Server) {
         try {
             let prompt: string = request.params.arguments?.prompt as string;
             let searchContext: string[] = request.params.arguments?.search_context as string[];
+            let eeaValidation: string = request.params.arguments?.eeaValidation as string;
 
             // Merge searchContext with DEFAULT_CONTEXTS and remove duplicates
             const mergedContexts = new Set([...DEFAULT_CONTEXTS, ...(searchContext || [])]);
@@ -253,7 +254,8 @@ export async function handleCallTool(request: CallToolRequest, server: Server) {
                 // Call the RAG service:
                 const ragResponse = await axios.post(ragEndpoint.concat("/chat"), {
                     message: prompt,
-                    contexts: contexts
+                    contexts: contexts,
+                    eeaValidation: eeaValidation
                 });
 
                 let mcpResponse = {
