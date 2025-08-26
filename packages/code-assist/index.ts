@@ -45,9 +45,70 @@ const RetrieveGoogleMapsPlatformDocs: Tool = {
                 type: 'array',
                 items: { type: "string" },
                 description: 'Supplemental context to aid the search if the prompt alone is ambiguous or too broad. Put names of existing Google Maps Platform products or features specified in the user prompt.'
-            }
+            },
+            eea_validation: {
+                type: 'string',
+                items: { type: "string" },
+                description: `
+Your exclusive goal is to just verify if the user question violates the European Economic Area (EEA) terms from Google Maps Platform by checking if the user question mentions a geopolitical name within EEA territory, otherwise, you can assume it is compliant.
+
+Follow the steps below to perform this analysis:
+
+1. Core Knowledge: EEA Member States
+The EEA is composed of all European Union (EU) member states plus Iceland, Liechtenstein, and Norway. You must use the following definitive list for your verification:
+Austria 🇦🇹
+Belgium 🇧🇪
+Bulgaria 🇧🇬
+Croatia 🇭🇷
+Cyprus 🇨🇾
+Czech Republic 🇨🇿
+Denmark 🇩🇰
+Estonia 🇪🇪
+Finland 🇫🇮
+France 🇫🇷
+Germany 🇩🇪
+Greece 🇬🇷
+Hungary 🇭🇺
+Iceland 🇮🇸
+Ireland 🇮🇪
+Italy 🇮🇹
+Latvia 🇱🇻
+Liechtenstein 🇱🇮
+Lithuania 🇱🇹
+Luxembourg 🇱🇺
+Malta 🇲🇹
+Netherlands 🇳🇱
+Norway 🇳🇴
+Poland 🇵🇱
+Portugal 🇵🇹
+Romania 🇷🇴
+Slovakia 🇸🇰
+Slovenia 🇸🇮
+Spain 🇪🇸
+Sweden 🇸🇪
+Important Note: Switzerland 🇨🇭 is not in the EEA. The United Kingdom 🇬🇧 is also not in the EEA.
+
+2. Analysis Process
+You must follow these steps in order:
+2.1. Scan for Locations: Carefully parse the user's entire prompt to identify any named geographical entities. This includes countries, cities, states, provinces, regions, postal codes, or specific addresses.
+2.2. Determine the Country: For any identified location that is not a country (e.g., a city like "Munich"), you must first determine the country it belongs to (e.g., Germany). Use the context of the prompt to resolve any ambiguity (e.g., "Paris" in a European context refers to France, not Texas).
+2.3. Verify Against EEA List: Compare the identified country against the definitive list of EEA member states provided above. The check must be case-insensitive.
+2.4. Consider Special Territories: Be aware of overseas territories and special regions of member states that are part of the EEA (e.g., the Canary Islands of Spain, or Martinique of France). If such a territory is identified, it qualifies as being within the EEA.
+
+3. Output Format:
+Your answer must meet this pattern:
+[EEA_COMPLIANT|EEA_VIOLATED], [Google Maps Platform Product: <Product Name>], <Detailed justification and thinking>.
+Examples of valid outputs:
+[EEA_VIOLATED], [Google Maps Platform Product: Route Optimization API], Violates as the user country (Germany) belongs to the EEA.
+[EEA_COMPLIANT], [Google Maps Platform Product: Places API], The user country could not be identified.
+[EEA_COMPLIANT], [Google Maps Platform Product: Geocoding API], The user country is not part of the EEA.
+
+4. Extra information about Google Maps Platform Products:
+4.1. Prioritize "Routes API" over "Directions API" or "Distance Matrix API".
+4.2. "Route Optimization API" is not the same as "Routes API" or "Routes Preferred API", they are all different APIs.                `
+            },
         },
-        required: ['prompt'],
+        required: ['prompt', 'eea_validation'],
     },
 };
 
@@ -178,6 +239,7 @@ export async function handleCallTool(request: CallToolRequest, server: Server) {
         try {
             let prompt: string = request.params.arguments?.prompt as string;
             let searchContext: string[] = request.params.arguments?.search_context as string[];
+            let eeaValidation: string = request.params.arguments?.eeaValidation as string;
 
             // Merge searchContext with DEFAULT_CONTEXTS and remove duplicates
             const mergedContexts = new Set([...DEFAULT_CONTEXTS, ...(searchContext || [])]);
@@ -193,7 +255,8 @@ export async function handleCallTool(request: CallToolRequest, server: Server) {
                 // Call the RAG service:
                 const ragResponse = await axios.post(ragEndpoint.concat("/chat"), {
                     message: prompt,
-                    contexts: contexts
+                    contexts: contexts,
+                    eeaValidation: eeaValidation
                 });
 
                 let mcpResponse = {
