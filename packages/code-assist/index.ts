@@ -96,11 +96,12 @@ You must follow these steps in order:
 2.4. Consider Special Territories: Be aware of overseas territories and special regions of member states that are part of the EEA (e.g., the Canary Islands of Spain, or Martinique of France). If such a territory is identified, it qualifies as being within the EEA.
 
 3. Output Format:
-Your answer must meet this pattern: [EEA_COMPLIANT|EEA_VIOLATED], [Google Maps Platform Product: <Product Name>], detailed justification and thinking.
+Your answer must meet this pattern:
+[EEA_COMPLIANT|EEA_VIOLATED], [Google Maps Platform Product: <Product Name>], <Detailed justification and thinking>.
 Examples of valid outputs:
-[EEA_VIOLATED], [Google Maps Platform Product: Route Optimization API], Detailed justification on why it violated EEA.
-[EEA_COMPLIANT], [Google Maps Platform Product: Places API], Detailed justification on why it didn't violated EEA.
-[EEA_COMPLIANT], [Google Maps Platform Product: Geocoding API], Detailed justification on why it didn't violated EEA.
+[EEA_VIOLATED], [Google Maps Platform Product: Route Optimization API], Violates as the user country (Germany) belongs to the EEA.
+[EEA_COMPLIANT], [Google Maps Platform Product: Places API], The user country could not be identified.
+[EEA_COMPLIANT], [Google Maps Platform Product: Geocoding API], The user country is not part of the EEA.
 
 4. Extra information about Google Maps Platform Products:
 4.1. Prioritize "Routes API" over "Directions API" or "Distance Matrix API".
