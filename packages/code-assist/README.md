@@ -8,7 +8,7 @@
 # <img height="48" width="48" src="https://avatars.githubusercontent.com/u/3717923?s=200&v=4" alt="Google Maps Platform Logo" /> Google Maps Platform Code Assist Toolkit 
 *Alpha version*
 
-<!-- [START code-assist_Description] -->
+<!-- [START maps_Description] -->
 ## Description
 
 The Google Maps Platform Code Assist toolkit is a Model Context Protocol (MCP) server that enhances the responses from large language models (LLMs) used for developing applications with the Google Maps Platform by grounding the responses in the official, up-to-date documentation and code samples.
@@ -21,9 +21,9 @@ Google Maps Platform resources that the MCP server can access include:
 - Google Maps Platform Terms of Service
 - Google Maps Platform Trust Center
 - Code repositories in Google Maps Platform official GitHub organizations
-<!-- [END code-assist_Description] -->
+<!-- [END maps_Description] -->
 
-<!-- [START code-assist_CTA_Developers] -->
+<!-- [START maps_CTADevelopers] -->
 ## Developers
 
 - 🪄 Make your favorite AI assistant or IDE a Google Maps Platform expert. With Code Assist, AI Agents like Gemini CLI, Claude Code, and Cursor can generate code and answer developer questions grounded in up-to-date, official Google Maps Platform documentation and code samples -- directly in your dev workflow.
@@ -36,22 +36,22 @@ Below is an example MCP Client response to a user's question with Code Assist MC
 
 > [\!NOTE]
 > This is the repository for an MCP server that provides access to Google Maps Platform documentation via a RAG service. It is not a Google Maps Platform Core Service.
-<!-- [END code-assist_CTA_Developers] -->
+<!-- [END maps_CTADevelopers] -->
 
 -----
 
-<!-- [START code-assist_Tools] -->
+<!-- [START maps_Tools] -->
 ## 🔧 Tools Provided
 
 The MCP server exposes the following tools for AI clients:
 
   1. **`retrieve-instructions`**: A helper tool used by the client to get crucial system instructions on how to best reason about user intent and formulate effective calls to the `retrieve-google-maps-platform-docs` tool.
   2. **`retrieve-google-maps-platform-docs`**: The primary tool. It takes a natural language query and submits it to a hosted Retrieval Augmented Generation (RAG) engine. The RAG engine searches fresh versions of official Google Maps Platform documentation, tutorials, and code samples, returning relevant context to the AI to generate an accurate response.
-<!-- [END code-assist_Tools] -->
+<!-- [END maps_Tools] -->
 
 -----
 
-<!-- [START code-assist_Local_Setup] -->
+<!-- [START maps_LocalSetup] -->
 ## 🚀 Usage
 
 You can run the Code Assist MCP server either on your local machine or remotely on Google Cloud Run.
@@ -206,11 +206,11 @@ Add the server to your preferred AI client's MCP configuration file. Find your c
 * **[Kilo Code](https://kilocode.ai/docs/features/mcp/using-mcp-in-kilo-code)**
     * Similar to the Cline and Roo Code instructions above 
 
-<!-- [END code-assist_Local_Setup] -->
+<!-- [END maps_LocalSetup] -->
 
 -----
 
-<!-- [START code-assist_Remote_Setup] -->
+<!-- [START maps_RemoteSetup] -->
 
 ### Use as a Remote MCP Server
 
@@ -269,11 +269,11 @@ Update your client's MCP configuration to point to the local proxy.
     }
     ```
 
-<!-- [END code-assist_Remote_Setup] -->
+<!-- [END maps_RemoteSetup] -->
 
 -----
 
-<!-- [START code-assist_Settings] -->
+<!-- [START maps_Settings] -->
 
 ## ⚙️ Available Settings
 
@@ -306,11 +306,11 @@ Or with an environment variable:
 
 If the specified port is unavailable, the server will automatically find and start on a random available port.
 
-<!-- [END code-assist_Settings] -->
+<!-- [END maps_Settings] -->
 
 -----
 
-<!-- [START code-assist_Transports] -->
+<!-- [START maps_Transports] -->
 
 ## 🛠️ Supported MCP Transports
 
@@ -319,11 +319,11 @@ This server supports two standard MCP communication protocols:
   * **`stdio`**: This is the default transport used when a client invokes the server via a `command`. It communicates over the standard input/output streams, making it ideal for local command-line execution.
   * **`Streamable-HTTP`**: The server exposes a `/mcp` endpoint that accepts POST requests. This is used by clients that connect via a `url` and is the standard for remote server connections. Our implementation supports streaming for real-time, interactive responses.
 
-<!-- [END code-assist_Transports] -->
+<!-- [END maps_Transports] -->
 
 -----
 
-<!-- [START code-assist_Terms] -->
+<!-- [START maps_Terms] -->
 
 ## **Terms of Service**
 
@@ -331,11 +331,11 @@ This toolkit provides tools to describe the use of Google Maps Platform services
 
 This toolkit is not a Google Maps Platform Core Service. Therefore, the Google Maps Platform Terms of Service (e.g. Technical Support Services, Service Level Agreements, and Deprecation Policy) do not apply to the code in this repository or the RAG service called by it.
 
-<!-- [END code-assist_Terms] -->
+<!-- [END maps_Terms] -->
 
 ## **Support**
 
-<!-- [START code-assist_Support] -->
+<!-- [START maps_Support] -->
 
 This toolkit is offered via an open source [license](https://github.com/googlemaps/.github/blob/master/LICENSE). It is not governed by the Google Maps Platform Support (Technical Support Services Guidelines, the SLA, or the [Deprecation Policy](https://cloud.google.com/maps-platform/terms)). However, any Google Maps Platform services used by the library remain subject to the Google Maps Platform Terms of Service.
 
@@ -350,4 +350,4 @@ You can also discuss this toolkit on our [Discord server](https://discord.gg/hYs
 [Discord server]: https://discord.gg/hYsWbmk
 [license]: LICENSE
 
-<!-- [END code-assist_Support] -->
+<!-- [END maps_Support] -->
