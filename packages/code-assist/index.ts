@@ -17,10 +17,11 @@
 import express, { Request, Response } from 'express';
 import http from 'http';
 import cors from 'cors';
+import { randomUUID } from "node:crypto";
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
-import { Tool, CallToolRequest, CallToolRequestSchema, ListToolsRequestSchema, Resource, ListResourcesRequestSchema, ReadResourceRequest, ReadResourceRequestSchema } from '@modelcontextprotocol/sdk/types.js';
+import { Tool, CallToolRequest, CallToolRequestSchema, ListToolsRequestSchema, Resource, ListResourcesRequestSchema, ReadResourceRequest, ReadResourceRequestSchema, isInitializeRequest } from '@modelcontextprotocol/sdk/types.js';
 import { ragEndpoint, DEFAULT_CONTEXTS } from './config.js';
 import axios from 'axios';
 
@@ -69,6 +70,9 @@ const instructionsResource: Resource = {
 };
 
 let usageInstructions: any = null;
+
+// Session management for StreamableHTTP transport
+const transports: Record<string, StreamableHTTPServerTransport> = {};
 
 export function _setUsageInstructions(value: any) {
     usageInstructions = value;
@@ -263,7 +267,7 @@ async function runServer() {
     await stdioServer.connect(stdioTransport);
     console.log("Google Maps Platform Code Assist Server running on stdio");
 
-    // HTTP transport
+    // HTTP transport with session management
     const app = express();
     app.use(express.json());
     app.use(cors({
@@ -271,52 +275,81 @@ async function runServer() {
         exposedHeaders: ['Mcp-Session-Id']
     }));
 
-    const httpServer = getServer();
-    const httpTransport = new StreamableHTTPServerTransport({
-        sessionIdGenerator: undefined,
-    });
-    await httpServer.connect(httpTransport);
-
-    app.post('/mcp', async (req: Request, res: Response) => {
+    // Unified MCP endpoint with session management
+    app.all('/mcp', async (req: Request, res: Response) => {
         try {
-            await httpTransport.handleRequest(req, res, req.body);
+            const sessionId = req.headers['mcp-session-id'] as string | undefined;
+            let transport: StreamableHTTPServerTransport;
+
+            if (sessionId && transports[sessionId]) {
+                // Reuse existing transport
+                transport = transports[sessionId];
+            } else if (!sessionId && req.method === 'POST') {
+                // For compatibility with SDK 1.17.4, be more permissive with initialization
+                let isInitRequest = false;
+                try {
+                    isInitRequest = isInitializeRequest(req.body);
+                } catch (e) {
+                    // Fallback: check for initialize method manually
+                    isInitRequest = req.body?.method === 'initialize' ||
+                                  (req.body?.jsonrpc === '2.0' && req.body?.method === 'initialize');
+                }
+
+                if (isInitRequest || !sessionId) {
+                    // Create new transport for initialization
+                    transport = new StreamableHTTPServerTransport({
+                        sessionIdGenerator: () => randomUUID(),
+                        onsessioninitialized: (sessionId) => {
+                            console.log(`StreamableHTTP session initialized: ${sessionId}`);
+                            transports[sessionId] = transport;
+                        }
+                    });
+
+                    transport.onclose = () => {
+                        const sid = transport.sessionId;
+                        if (sid && transports[sid]) {
+                            console.log(`Transport closed for session ${sid}`);
+                            delete transports[sid];
+                        }
+                    };
+
+                    const server = getServer();
+                    await server.connect(transport);
+                } else {
+                    return res.status(400).json({
+                        jsonrpc: '2.0',
+                        error: { code: -32000, message: 'Bad Request: No valid session ID provided for non-init request' },
+                        id: null,
+                    });
+                }
+            } else {
+                return res.status(400).json({
+                    jsonrpc: '2.0',
+                    error: { code: -32000, message: 'Bad Request: Invalid request method or missing session ID' },
+                    id: null,
+                });
+            }
+
+            await transport.handleRequest(req, res, req.body);
         } catch (error) {
             console.error('Error handling MCP HTTP request:', error);
             if (!res.headersSent) {
                 res.status(500).json({
                     jsonrpc: '2.0',
-                    error: {
-                        code: -32603,
-                        message: 'Internal server error',
-                    },
+                    error: { code: -32603, message: 'Internal server error' },
                     id: null,
                 });
             }
         }
     });
 
-    app.get('/mcp', async (req: Request, res: Response) => {
-        console.log('Received GET MCP request');
-        res.writeHead(405).end(JSON.stringify({
-            jsonrpc: "2.0",
-            error: {
-                code: -32000,
-                message: "Method not allowed."
-            },
-            id: null
-        }));
-    });
-
-    app.delete('/mcp', async (req: Request, res: Response) => {
-        console.log('Received DELETE MCP request');
-        res.writeHead(405).end(JSON.stringify({
-            jsonrpc: "2.0",
-            error: {
-                code: -32000,
-                message: "Method not allowed."
-            },
-            id: null
-        }));
+    // Health check endpoint
+    app.get('/health', (req: Request, res: Response) => {
+        res.json({
+            status: 'healthy',
+            activeSessions: Object.keys(transports).length,
+            timestamp: new Date().toISOString()
+        });
     });
 
     const portIndex = process.argv.indexOf('--port');
@@ -373,6 +406,21 @@ export const startHttpServer = (app: express.Express, p: number): Promise<http.S
             });
     });
 };
+
+// Graceful shutdown
+process.on('SIGINT', async () => {
+    console.log('Shutting down server...');
+    for (const sessionId in transports) {
+        try {
+            await transports[sessionId].close();
+            delete transports[sessionId];
+        } catch (error) {
+            console.error(`Error closing transport for session ${sessionId}:`, error);
+        }
+    }
+    console.log('Server shutdown complete');
+    process.exit(0);
+});
 
 if (process.env.NODE_ENV !== 'test') {
     runServer().catch((error) => {

@@ -327,6 +327,14 @@ This server supports two standard MCP communication protocols:
 
 ## 🌐 StreamableHTTP Developer Guide
 
+> [!WARNING]
+> **Experimental Feature**: StreamableHTTP support is currently experimental and should be used with caution. This implementation lacks essential production safeguards:
+> - **No Authentication**: The HTTP endpoint is open and unauthenticated
+> - **No Rate Limiting**: No protection against abuse or excessive requests
+> - **No Access Controls**: Anyone with network access can use the server
+>
+> **Recommendation**: Use the default `stdio` transport for most deployments today. Only use StreamableHTTP for development, testing, or in secure network environments where these limitations are acceptable.
+
 For developers who need to integrate the Google Maps Platform Code Assist MCP server using the StreamableHTTP transport, this guide provides detailed setup instructions, configuration examples, and troubleshooting tips.
 
 ### When to Use StreamableHTTP
