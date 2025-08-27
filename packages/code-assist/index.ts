@@ -271,19 +271,15 @@ async function runServer() {
         exposedHeaders: ['Mcp-Session-Id']
     }));
 
+    const httpServer = getServer();
+    const httpTransport = new StreamableHTTPServerTransport({
+        sessionIdGenerator: undefined,
+    });
+    await httpServer.connect(httpTransport);
+
     app.post('/mcp', async (req: Request, res: Response) => {
-        const httpServer = getServer();
         try {
-            const httpTransport = new StreamableHTTPServerTransport({
-                sessionIdGenerator: undefined,
-            });
-            await httpServer.connect(httpTransport);
             await httpTransport.handleRequest(req, res, req.body);
-            res.on('close', () => {
-                console.log('HTTP Request closed');
-                httpTransport.close();
-                httpServer.close();
-            });
         } catch (error) {
             console.error('Error handling MCP HTTP request:', error);
             if (!res.headersSent) {

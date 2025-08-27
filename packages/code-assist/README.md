@@ -323,6 +323,142 @@ This server supports two standard MCP communication protocols:
 
 -----
 
+<!-- [START maps_StreamableHTTPGuide] -->
+
+## 🌐 StreamableHTTP Developer Guide
+
+For developers who need to integrate the Google Maps Platform Code Assist MCP server using the StreamableHTTP transport, this guide provides detailed setup instructions, configuration examples, and troubleshooting tips.
+
+### When to Use StreamableHTTP
+
+Use StreamableHTTP transport when:
+- Your client requires a URL-based connection instead of command execution
+- You need to run the server remotely (e.g., on Google Cloud Run)
+- Your development environment requires HTTP-based communication
+- You're building custom integrations that communicate over HTTP
+
+### Local StreamableHTTP Setup
+
+**1. Start the Server**
+
+Run the MCP server locally with a specific port:
+
+```bash
+npm start -- --port 3215
+```
+
+Or using npx:
+
+```bash
+npx -y @googlemaps/code-assist-mcp@latest --port 3215
+```
+
+The server will be available at: `http://localhost:3215/mcp`
+
+**2. Client Configuration**
+
+Configure your MCP client to use the StreamableHTTP endpoint:
+
+```json
+{
+  "mcpServers": {
+    "google-maps-platform-code-assist": {
+      "url": "http://localhost:3215/mcp",
+      "type": "streamableHttp",
+      "autoApprove": [
+        "retrieve-instructions",
+        "retrieve-google-maps-platform-docs"
+      ]
+    }
+  }
+}
+```
+
+### Important HTTP Requirements
+
+**Accept Headers**
+
+The StreamableHTTP transport uses Server-Sent Events (SSE) and requires clients to accept both content types:
+
+```
+Accept: application/json, text/event-stream
+```
+
+If your client doesn't include both content types, you'll receive this error:
+```
+{"jsonrpc":"2.0","error":{"code":-32000,"message":"Not Acceptable: Client must accept both application/json and text/event-stream"},"id":null}
+```
+
+### Testing Your Setup
+
+**Manual Testing with cURL**
+
+Verify your server is working correctly:
+
+```bash
+# Test server initialization
+curl -X POST http://localhost:3215/mcp \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json, text/event-stream" \
+  -d '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "initialize",
+    "params": {
+      "protocolVersion": "2024-11-05",
+      "capabilities": {},
+      "clientInfo": {"name": "test-client", "version": "1.0.0"}
+    }
+  }'
+```
+
+Expected response:
+```
+event: message
+data: {"result":{"protocolVersion":"2024-11-05","capabilities":{"tools":{},"logging":{},"resources":{}},"serverInfo":{"name":"code-assist-mcp","version":"0.1.3"}},"jsonrpc":"2.0","id":1}
+```
+
+**Test Available Tools**
+
+```bash
+curl -X POST http://localhost:3215/mcp \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json, text/event-stream" \
+  -d '{"jsonrpc": "2.0", "id": 2, "method": "tools/list"}'
+```
+
+### Client-Specific Configuration
+
+**Cline (VS Code Extension)**
+
+Add to `cline_mcp_settings.json`:
+
+```json
+{
+  "mcpServers": {
+    "google-maps-platform-code-assist": {
+      "url": "http://localhost:3215/mcp",
+      "type": "streamableHttp",
+      "autoApprove": [
+        "retrieve-instructions",
+        "retrieve-google-maps-platform-docs"
+      ]
+    }
+  }
+}
+```
+
+### Performance Considerations
+
+- StreamableHTTP supports real-time streaming responses
+- Keep-alive connections are maintained for better performance
+- Server handles multiple concurrent connections
+- Consider load balancing for high-traffic scenarios
+
+<!-- [END maps_StreamableHTTPGuide] -->
+
+-----
+
 <!-- [START maps_Terms] -->
 
 ## **Terms of Service**
