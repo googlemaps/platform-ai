@@ -419,7 +419,7 @@ Update your client's MCP configuration to point to the local proxy.
 
 **5. Connect GCP Services (Alternative to Local Proxy)**
 
-To connect another GCP service to the hosted MCP server, like an ADK agent you deploy to GCP Cloud Run or AgentEngine, you can connect the client directly to the Cloud Run service using the following IAM roles:
+To connect another GCP service to the remotely deployed Cloud Run MCP server, such as an [Agent Development Kit (ADK)](https://google.github.io/adk-docs/) agent on GCP Cloud Run or [Vertex AI Agent Engine](https://cloud.google.com/vertex-ai/generative-ai/docs/agent-engine/overview), you can connect the client directly to the remote MCP service over Streamable HTTP using the following IAM roles:
 
 ```bash
 # Grant Cloud Run Invoker role to the service account
@@ -429,7 +429,7 @@ gcloud run services add-iam-policy-binding google-maps-code-assist-mcp \
  --region=YOUR_REGION
 ```
 
-Now your client GCP service, app, or agentcan connect directly to the MCP server using the deployed Cloud Run URL over Streamable HTTP.
+Now your GCP hosted app or agent can connect directly to the remotely hosted MCP server URL over Streamable HTTP.
 
 <!-- [END maps_RemoteSetup] -->
 
