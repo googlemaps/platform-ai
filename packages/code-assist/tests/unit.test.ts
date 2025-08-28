@@ -216,6 +216,7 @@ describe("startHttpServer", () => {
 
         await new Promise<void>(resolve => server.close(() => resolve()));
     });
+});
 
 describe("StreamableHTTP Transport", () => {
     let mockTransport: any;
@@ -468,5 +469,4 @@ describe("StreamableHTTP Transport", () => {
             expect(Object.keys(mockTransportMap).length).toBe(0);
         });
     });
-});
 });
