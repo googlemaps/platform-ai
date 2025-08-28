@@ -87,7 +87,7 @@ Run the server on your local machine and connect clients using `stdio` protocol 
 
 Add the server to your preferred AI client's MCP configuration file. Find your client below for specific, verified instructions.
 
-* **[Gemini Code Assist & Gemini CLI](https://developers.google.com/gemini-code-assist/docs/use-agentic-chat-pair-programmer#configure-mcp-servers)**
+1. **[Gemini Code Assist & Gemini CLI](https://developers.google.com/gemini-code-assist/docs/use-agentic-chat-pair-programmer#configure-mcp-servers)**
     * Option 1 - Add the server directly from your command line (assuming you have Gemini CLI already installed):
         ```bash
          gemini mcp add google-maps-platform-code-assist npx -y @googlemaps/code-assist-mcp@latest
@@ -105,7 +105,7 @@ Add the server to your preferred AI client's MCP configuration file. Find your c
     }
     ```
 
-* **[Claude Code](https://docs.anthropic.com/en/docs/claude-code/mcp)**
+2. **[Claude Code](https://docs.anthropic.com/en/docs/claude-code/mcp)**
     * Option 1 - Add the server directly from your command line (assuming you have Claude Code already installed):
         ```bash
             claude mcp add google-maps-platform-code-assist -- npx -y @googlemaps/code-assist@latest
@@ -127,7 +127,7 @@ Add the server to your preferred AI client's MCP configuration file. Find your c
       }
     ```
 
-* **[Cursor](https://docs.cursor.com/en/context/mcp)**
+3. **[Cursor](https://docs.cursor.com/en/context/mcp)**
     * [![Install MCP Server](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/en/install-mcp?name=google-maps-platform&config=eyJjb21tYW5kIjoibnB4IC15IEBnb29nbGVtYXBzL2NvZGUtYXNzaXN0LW1jcCJ9) <-- If you already have Cursor installed, click here to install Google Maps Platform Code Assist MCP directly.
     * Otherwise, add it to your workspace's `.cursor-settings/mcp.json` file.
     ```json
@@ -141,8 +141,8 @@ Add the server to your preferred AI client's MCP configuration file. Find your c
     }
     ```
 
-* **[Firebase Studio](https://firebase.google.com/docs/studio/customize-workspace)**
-    * <a href="https://studio.firebase.google.com/new/gemini-maps"> <img height="28" alt="Try in Firebase Studio" src="https://cdn.firebasestudio.dev/btn/try_dark_32.svg"></a> with Code Assist MCP installed 
+4. **[Firebase Studio](https://firebase.google.com/docs/studio/customize-workspace)**
+    * <a href="https://studio.firebase.google.com/new/gemini-maps"> <img height="28" alt="Try in Firebase Studio" src="https://cdn.firebasestudio.dev/btn/try_dark_32.svg"></a> with Code Assist MCP installed
     * Add to your project's `mcp.json` file in the `.idx` folder in your Firebase Studio workspace
     ```json
     {
@@ -155,8 +155,8 @@ Add the server to your preferred AI client's MCP configuration file. Find your c
     }
     ```
 
-* **[Android Studio](https://developer.android.com/studio/gemini/add-mcp-server)**
-    * Create a `mcp.json` file and place it in the [configuration directory](https://developer.android.com/studio/troubleshoot#directories) of Android Studio. Add the Code Assist server to the list:
+5. **[Android Studio](https://developer.android.com/studio/gemini/add-mcp-server)**
+    * Create a `mcp.json` file and place it in the [configuration directory](https://developer.android.com/studio/troubleshoot#directories) of Android Studio. Add the Code Assist server to the list:
     ```json
     {
       "mcpServers": {
@@ -167,13 +167,13 @@ Add the server to your preferred AI client's MCP configuration file. Find your c
       }
     }
     ```
-* **[Cline](https://docs.cline.bot/mcp/configuring-mcp-servers)**
+6. **[Cline](https://docs.cline.bot/mcp/configuring-mcp-servers)**
     * Option 1: install using the [Cline MCP GUI](https://docs.cline.bot/mcp/configuring-mcp-servers)
     * Option 2: manually / programatically install using the Cline MCP config file. The config file is located at:
-        * **macOS:** `~/Library/Application Support/Code/User/globalStorage/saoudrizwan.claude-dev/settings/cline_mcp_settings.json`
-        *   **Windows:** `%APPDATA%/Code/User/globalStorage/saoudrizwan.claude-dev/settings/cline_mcp_settings.json`
-        *   **Linux:** `~/.config/Code/User/globalStorage/saoudrizwan.claude-dev/settings/cline_mcp_settings.json`
-        *   Add the following to your MCP configuration in `cline_mcp_settings.json`: 
+        * **macOS:** `~/Library/Application Support/Code/User/globalStorage/saoudrizwan.claude-dev/settings/cline_mcp_settings.json`
+        *   **Windows:** `%APPDATA%/Code/User/globalStorage/saoudrizwan.claude-dev/settings/cline_mcp_settings.json`
+        *   **Linux:** `~/.config/Code/User/globalStorage/saoudrizwan.claude-dev/settings/cline_mcp_settings.json`
+        *   Add the following to your MCP configuration in `cline_mcp_settings.json`:
             ```json
             {
               "mcpServers": {
@@ -188,13 +188,13 @@ Add the server to your preferred AI client's MCP configuration file. Find your c
               }
             }
             ```
-* **[Roo Code](https://docs.roocode.com/features/mcp/using-mcp-in-roo)**
+7. **[Roo Code](https://docs.roocode.com/features/mcp/using-mcp-in-roo)**
     * Option 1: install using the [Roo MCP GUI](https://docs.roocode.com/features/mcp/using-mcp-in-roo)
     * Option 2: manually / programatically install using the Roo Code config file. The config file is located at:
         * **macOS:** `~/Library/Application Support/Code/User/globalStorage/rooveterinaryinc.roo-cline/settings/mcp_settings.json`
         * **Windows:** `%APPDATA%\Code\User\globalStorage\rooveterinaryinc.roo-cline\settings\mcp_settings.json`
         * **Linux:** `~/.config/Code/User/globalStorage/rooveterinaryinc.roo-cline/settings/mcp_settings.json`
-        * Add the following to your MCP configuration in `mcp_settings.json`: 
+        * Add the following to your MCP configuration in `mcp_settings.json`:
             ```json
             {
               "mcpServers": {
@@ -210,7 +210,7 @@ Add the server to your preferred AI client's MCP configuration file. Find your c
             }
             ```
 
-* **[Microsoft Copilot](https://learn.microsoft.com/en-us/microsoft-copilot-studio/agent-extend-action-mcp)**
+8. **[Microsoft Copilot](https://learn.microsoft.com/en-us/microsoft-copilot-studio/agent-extend-action-mcp)**
     * When in Agent mode, Click "Tools" and then in the top header "Configure Tools" then "Install from an NPM package name" (See screenshots below)
     * <img width="597" height="199" alt="image" src="https://github.com/user-attachments/assets/061e685b-749a-4267-a471-3845c80e16b5" />
 
@@ -220,11 +220,11 @@ Add the server to your preferred AI client's MCP configuration file. Find your c
     * <img width="717" height="114" alt="image" src="https://github.com/user-attachments/assets/d6ba49d2-0207-4bdc-9637-18f7307f767c" />
 
 
-* **[Windsurf](https://docs.windsurf.com/windsurf/cascade/mcp)**
+9. **[Windsurf](https://docs.windsurf.com/windsurf/cascade/mcp)**
     * Similar to Cursor instructions above.
       
-* **[Kilo Code](https://kilocode.ai/docs/features/mcp/using-mcp-in-kilo-code)**
-    * Similar to the Cline and Roo Code instructions above 
+10. **[Kilo Code](https://kilocode.ai/docs/features/mcp/using-mcp-in-kilo-code)**
+    * Similar to the Cline and Roo Code instructions above
 
 <!-- [END maps_LocalSetup] -->
 
@@ -269,44 +269,56 @@ If the specified port is unavailable, the server will automatically find and sta
 
 <!-- [START maps_StreamableHTTP_Guide] -->
 
-## 🌐 Streamable HTTP Developer Guide
+## 🌐 Local Streamable HTTP Guide
 
-For developers who need to integrate the Google Maps Platform Code Assist MCP server using the [Streamable HTTP](https://modelcontextprotocol.io/specification/2025-03-26/basic/transports#streamable-http) transport, this guide provides detailed setup instructions, configuration examples, and troubleshooting tips.
+For developers who need to integrate the Google Maps Platform Code Assist MCP server using the [Streamable HTTP](https://modelcontextprotocol.io/specification/2025-03-26/basic/transports#streamable-http) transport on their local machine, this guide provides setup instructions and testing steps.
 
-### When to Use Streamable HTTP
+### When to Use Local Streamable HTTP
 
-Use Streamable HTTP transport when:
+Use the local Streamable HTTP transport when:
 - Your client requires a URL-based connection instead of command execution
-- You need to run the server remotely (e.g., on Google Cloud Run)
-- Your development environment requires HTTP-based communication
-- You're building custom integrations that communicate over HTTP
+- Your local development environment requires HTTP-based communication
+- You're building and testing custom integrations that communicate over HTTP
 
 ### Local Streamable HTTP Setup
 
 **1. Start the Server**
 
-Run the MCP server locally with a specific port:
-
-```bash
-npm start -- --port 3215
-```
-
-Or using npx:
+Run the MCP server locally, specifying a port:
 
 ```bash
 npx -y @googlemaps/code-assist-mcp@latest --port 3215
 ```
 
-The server will be available at: `http://localhost:3215/mcp`
+The server will be available at `http://localhost:3215/mcp`.
 
-**2. Client Configuration**
+**2. Configure Your Client**
 
-**Note:** Check that`type` parameter in your mcp configuration is set correctly for your specific MCP Client. There are slight differences - for example Roo Code uses `"type": "streamable-http"`, slightly different than Cline's `"type": "streamableHttp"`.
+Update your client's MCP configuration to connect to the local server URL.
+
+**Note:** Check that the `type` parameter in your MCP configuration is set correctly for your specific client. For example, Roo Code uses `"type": "streamable-http"`, while Cline uses `"type": "streamableHttp"`.
+
+**Roo Code (VS Code Extension)**
+
+Add to `mcp_settings.json`:
+```json
+{
+  "mcpServers": {
+    "google-maps-platform-code-assist": {
+      "type": "streamable-http",
+      "url": "http://localhost:3215/mcp",
+      "alwaysAllow": [
+        "retrieve-instructions",
+        "retrieve-google-maps-platform-docs"
+      ]
+    }
+  }
+}
+```
 
 **Cline (VS Code Extension)**
 
 Add to `cline_mcp_settings.json`:
-
 ```json
 {
   "mcpServers": {
@@ -316,67 +328,15 @@ Add to `cline_mcp_settings.json`:
       "alwaysAllow": [
         "retrieve-instructions",
         "retrieve-google-maps-platform-docs"
-      ],
-      "autoApprove": [
-        "retrieve-google-maps-platform-docs",
-        "retrieve-instructions"
       ]
     }
   }
 }
 ```
 
-**Roo Code (VS Code Extension)**
+### Testing Your Local Setup with cURL
 
-Add to `mcp_settings.json`
-
-```json
-{
-  "mcpServers": {
-    "google-maps-platform-code-assist": {
-      "type": "streamable-http", 
-      "url": "http://localhost:3215/mcp",
-      "alwaysAllow": [
-        "retrieve-instructions",
-        "retrieve-google-maps-platform-docs"
-      ],
-      "autoApprove": [
-        "retrieve-google-maps-platform-docs",
-        "retrieve-instructions"
-      ]
-    }
-  }
-}
-```
-
-### Important HTTP Requirements
-
-**Accept Headers**
-
-The Streamable HTTP transport uses Server-Sent Events (SSE) and requires clients to accept both content types:
-
-```
-Accept: application/json, text/event-stream
-```
-
-If your client doesn't include both content types, you'll receive this error:
-```
-{"jsonrpc":"2.0","error":{"code":-32000,"message":"Not Acceptable: Accept header must include both application/json and text/event-stream","data":{"code":"INVALID_ACCEPT_HEADER"}},"id":null}
-```
-
-**Security Features**
-
-The server now includes production-grade security enhancements:
-- **Origin Header Validation**: Protects against DNS rebinding attacks with configurable allowed origins
-- **Environment-Aware Security**: Automatic localhost allowance in development, strict validation in production
-- **Structured Error Responses**: Machine-readable error codes for better client-side error handling
-- **Connection Resumability**: Last-Event-ID header support for SSE stream resumption
-
-### Testing Your Setup
-
-**Manual Testing with cURL**
-
-Verify your server is working correctly:
+Verify your server is working correctly by sending an `initialize` request:
 
 ```bash
 # Test server initialization
@@ -388,34 +348,19 @@ curl -X POST http://localhost:3215/mcp \
     "id": 1,
     "method": "initialize",
     "params": {
-      "protocolVersion": "2024-11-05",
+      "protocolVersion": "2025-03-26",
       "capabilities": {},
       "clientInfo": {"name": "test-client", "version": "1.0.0"}
     }
   }'
 ```
 
-Expected response:
+**Expected Response:**
+The server will respond with an SSE event containing its capabilities.
 ```
 event: message
-data: {"result":{"protocolVersion":"2024-11-05","capabilities":{"tools":{},"logging":{},"resources":{}},"serverInfo":{"name":"code-assist-mcp","version":"0.1.3"}},"jsonrpc":"2.0","id":1}
+data: {"jsonrpc":"2.0","id":1,"result":{"protocolVersion":"2025-03-26","capabilities":{"tools":{},"logging":{},"resources":{}},"serverInfo":{"name":"code-assist-mcp","version":"0.1.3"}}}
 ```
-
-**Test Available Tools**
-
-```bash
-curl -X POST http://localhost:3215/mcp \
-  -H "Content-Type: application/json" \
-  -H "Accept: application/json, text/event-stream" \
-  -d '{"jsonrpc": "2.0", "id": 2, "method": "tools/list"}'
-```
-
-### Performance Considerations
-
-- Streamable HTTP supports real-time streaming responses
-- Keep-alive connections are maintained for better performance
-- Server handles multiple concurrent connections
-- Consider load balancing for high-traffic scenarios
 
 <!-- [END maps_StreamableHTTP_Guide] -->
 
@@ -423,12 +368,12 @@ curl -X POST http://localhost:3215/mcp \
 
 <!-- [START maps_RemoteSetup] -->
 
-### Use as a Remote MCP Server
+### Use as a Remote MCP Server on Cloud Run with Streamable HTTP
 
 Run the server on Google Cloud Run and connect to it from your local machine. This is useful if your client requires a remotely-hosted, streamable HTTP endpoint.
 
 > [\!WARNING]
-> These instructions secure the server so only you can access it. **Do not deploy a remote MCP server without authentication** to prevent unauthorized access and potential costs.
+> These instructions secure the server so only you can access it with the proper IAM roles for your applications, MCP Clients, or Agents.
 
 **1. Prerequisites**
 
@@ -454,10 +399,10 @@ When prompted, select a region (e.g., `us-central1`).
 Run a Cloud Run proxy on your local machine. This creates a secure tunnel from a local port to your remote server, authenticated with your `gcloud` identity.
 
 ```bash
-gcloud run services proxy google-maps-code-assist-mcp --port=8080 --region=YOUR_REGION
+gcloud run services proxy google-maps-code-assist-mcp --port=8999 --region=YOUR_REGION
 ```
 
-Now, `http://localhost:8080` on your machine securely connects to your Cloud Run service.
+Now, `http://localhost:8999` on your machine securely connects to your Cloud Run service.
 
 **4. Configure Your Client**
 
@@ -467,10 +412,24 @@ Update your client's MCP configuration to point to the local proxy.
 
     ```json
     "google-maps-platform-code-assist": {
-      "url": "http://localhost:8080/mcp",
+      "url": "http://localhost:8999/mcp",
       "type": //Either "streamableHttp" or "streamable-http", depending on your MCP client
     }
     ```
+
+**5. Connect GCP Services (Alternative to Local Proxy)**
+
+To connect another GCP service to the hosted MCP server, like an ADK agent you deploy to GCP Cloud Run or AgentEngine, you can connect the client directly to the Cloud Run service using the following IAM roles:
+
+```bash
+# Grant Cloud Run Invoker role to the service account
+gcloud run services add-iam-policy-binding google-maps-code-assist-mcp \
+ --member="serviceAccount:YOUR-SERVICE-ACCOUNT@YOUR-PROJECT.iam.gserviceaccount.com" \
+ --role="roles/run.invoker" \
+ --region=YOUR_REGION
+```
+
+Now your client GCP service, app, or agentcan connect directly to the MCP server using the deployed Cloud Run URL over Streamable HTTP.
 
 <!-- [END maps_RemoteSetup] -->
 
