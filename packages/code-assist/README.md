@@ -431,6 +431,13 @@ gcloud run services add-iam-policy-binding google-maps-code-assist-mcp \
 
 Now your GCP hosted app or agent can connect directly to the remotely hosted MCP server URL over Streamable HTTP.
 
+**6. Health Check Endpoint**
+
+This server implementation includes a standard `/health` endpoint. This is a best practice for services deployed on platforms like Cloud Run, which use it to check the server's operational status.
+
+- **HTTP `/health` Endpoint**: A simple `GET` request to this endpoint (e.g., `https://your-service-url/health`) will return a `200 OK` status with a JSON payload containing the server status, number of active sessions, and a timestamp if the server is running. This is used for infrastructure-level health checks.
+- **MCP `ping` Utility**: This is different from the in-protocol `ping` utility defined by the MCP specification. The `ping` utility is a JSON-RPC request sent *after* a session is established to check the liveness of the *protocol connection*, whereas the `/health` endpoint checks the liveness of the *HTTP server* itself.
+
 <!-- [END maps_RemoteSetup] -->
 
 -----
