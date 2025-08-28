@@ -463,21 +463,12 @@ Now, `http://localhost:8080` on your machine securely connects to your Cloud Run
 
 Update your client's MCP configuration to point to the local proxy.
 
-  * If your client supports the `url` attribute for SSE:
+  * Connect using the `url` attribute over Streamable HTTP:
 
     ```json
     "google-maps-platform-code-assist": {
       "url": "http://localhost:8080/mcp",
-      "type": //Either "streamableHttp" or "streamable-http" depending on the MCP client
-    }
-    ```
-
-  * If your client only supports `command`, use [`mcp-remote`](https://www.google.com/search?q=%5Bhttps://www.npmjs.com/package/mcp-remote%5D\(https://www.npmjs.com/package/mcp-remote\)) as a bridge:
-
-    ```json
-    "google-maps-platform-code-assist": {
-      "command": "npx",
-      "args": ["-y", "mcp-remote", "http://localhost:8080/mcp"]
+      "type": //Either "streamableHttp" or "streamable-http", depending on your MCP client
     }
     ```
 
