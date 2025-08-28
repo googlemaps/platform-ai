@@ -454,27 +454,31 @@ Add to `cline_mcp_settings.json`:
 {
   "mcpServers": {
     "google-maps-platform-code-assist": {
-      "url": "http://localhost:3215/mcp",
       "type": "streamableHttp",
-      "autoApprove": [
+      "url": "http://localhost:3215/mcp",
+      "alwaysAllow": [
         "retrieve-instructions",
         "retrieve-google-maps-platform-docs"
+      ],
+      "autoApprove": [
+        "retrieve-google-maps-platform-docs",
+        "retrieve-instructions"
       ]
     }
   }
 }
 ```
 
-```Roo Code (VS Code Extension)```
+**Roo Code (VS Code Extension)**
 
-Add to `mcp_settings.json` (note that`type` is set to `streamableHttp`, slightly different than Cline's `streamableHttp` above)
+Add to `mcp_settings.json` (note that`type` is set to `streamable-http`, slightly different than Cline's `streamableHttp` type parameter)
 
 ```json
 {
   "mcpServers": {
     "google-maps-platform-code-assist": {
-      "type": "streamableHttp", 
-      "url": "http://localhost:3125/mcp",
+      "type": "streamable-http", 
+      "url": "http://localhost:3215/mcp",
       "alwaysAllow": [
         "retrieve-instructions",
         "retrieve-google-maps-platform-docs"
