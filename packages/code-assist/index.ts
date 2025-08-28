@@ -25,6 +25,15 @@ import { Tool, CallToolRequest, CallToolRequestSchema, ListToolsRequestSchema, R
 import { ragEndpoint, DEFAULT_CONTEXTS } from './config.js';
 import axios from 'axios';
 
+// MCP Streamable HTTP compliance: Accept header validation
+function validateAcceptHeader(req: Request): boolean {
+  const acceptHeader = req.headers.accept;
+  if (!acceptHeader) return false;
+  
+  const acceptedTypes = acceptHeader.split(',').map(type => type.trim().split(';')[0]);
+  return acceptedTypes.includes('application/json') && acceptedTypes.includes('text/event-stream');
+}
+
 const RetrieveGoogleMapsPlatformDocs: Tool = {
     name: 'retrieve-google-maps-platform-docs',
     description: 'Searches Google Maps Platform documentation, code samples, GitHub repositories, and terms of service to answer user questions. IMPORTANT: Before calling this tool, call the `retrieve-instructions` tool or load the `instructions` resource to add crucial system instructions and preamble to context.',
@@ -275,8 +284,20 @@ async function runServer() {
         exposedHeaders: ['Mcp-Session-Id']
     }));
 
-    // Unified MCP endpoint with session management
-    app.all('/mcp', async (req: Request, res: Response) => {
+    // MCP POST endpoint for initialization and RPC calls
+    app.post('/mcp', async (req: Request, res: Response) => {
+        // Feature 1: Accept header validation
+        if (!validateAcceptHeader(req)) {
+            return res.status(400).json({
+                jsonrpc: '2.0',
+                error: {
+                    code: -32000,
+                    message: 'Bad Request: Accept header must include both application/json and text/event-stream'
+                },
+                id: null,
+            });
+        }
+
         try {
             const sessionId = req.headers['mcp-session-id'] as string | undefined;
             let transport: StreamableHTTPServerTransport;
@@ -284,7 +305,7 @@ async function runServer() {
             if (sessionId && transports[sessionId]) {
                 // Reuse existing transport
                 transport = transports[sessionId];
-            } else if (!sessionId && req.method === 'POST') {
+            } else if (!sessionId) {
                 // For compatibility with SDK 1.17.4, be more permissive with initialization
                 let isInitRequest = false;
                 try {
@@ -295,7 +316,7 @@ async function runServer() {
                                   (req.body?.jsonrpc === '2.0' && req.body?.method === 'initialize');
                 }
 
-                if (isInitRequest || !sessionId) {
+                if (isInitRequest) {
                     // Create new transport for initialization
                     transport = new StreamableHTTPServerTransport({
                         sessionIdGenerator: () => randomUUID(),
@@ -325,18 +346,90 @@ async function runServer() {
             } else {
                 return res.status(400).json({
                     jsonrpc: '2.0',
-                    error: { code: -32000, message: 'Bad Request: Invalid request method or missing session ID' },
+                    error: { code: -32000, message: 'Bad Request: Invalid session ID' },
                     id: null,
                 });
             }
 
             await transport.handleRequest(req, res, req.body);
         } catch (error) {
-            console.error('Error handling MCP HTTP request:', error);
+            console.error('Error handling MCP POST request:', error);
             if (!res.headersSent) {
                 res.status(500).json({
                     jsonrpc: '2.0',
                     error: { code: -32603, message: 'Internal server error' },
+                    id: null,
+                });
+            }
+        }
+    });
+
+    // Feature 2: GET endpoint for SSE streams
+    app.get('/mcp', async (req: Request, res: Response) => {
+        // Feature 1: Accept header validation for GET (requires text/event-stream)
+        const acceptHeader = req.headers.accept;
+        if (!acceptHeader || !acceptHeader.includes('text/event-stream')) {
+            return res.status(400).json({
+                jsonrpc: '2.0',
+                error: { code: -32000, message: 'Bad Request: Accept header must include text/event-stream for GET requests' },
+                id: null,
+            });
+        }
+
+        const sessionId = req.headers['mcp-session-id'] as string | undefined;
+        if (!sessionId || !transports[sessionId]) {
+            return res.status(400).json({
+                jsonrpc: '2.0',
+                error: { code: -32000, message: 'Bad Request: Valid session ID required for GET requests' },
+                id: null,
+            });
+        }
+
+        try {
+            const transport = transports[sessionId];
+            await transport.handleRequest(req, res);
+        } catch (error) {
+            console.error('Error handling GET SSE request:', error);
+            if (!res.headersSent) {
+                res.status(500).json({
+                    jsonrpc: '2.0',
+                    error: { code: -32603, message: 'Internal server error' },
+                    id: null,
+                });
+            }
+        }
+    });
+
+    // Feature 3: DELETE endpoint for session termination
+    app.delete('/mcp', async (req: Request, res: Response) => {
+        const sessionId = req.headers['mcp-session-id'] as string | undefined;
+        if (!sessionId || !transports[sessionId]) {
+            return res.status(400).json({
+                jsonrpc: '2.0',
+                error: { code: -32000, message: 'Bad Request: Valid session ID required for DELETE requests' },
+                id: null,
+            });
+        }
+
+        try {
+            const transport = transports[sessionId];
+            await transport.handleRequest(req, res);
+            
+            // Clean up transport after successful termination
+            try {
+                await transport.close();
+            } catch (closeError) {
+                console.error(`Error closing transport for session ${sessionId}:`, closeError);
+            }
+            delete transports[sessionId];
+            
+            console.log(`Session ${sessionId} terminated via DELETE request`);
+        } catch (error) {
+            console.error('Error handling DELETE session termination:', error);
+            if (!res.headersSent) {
+                res.status(500).json({
+                    jsonrpc: '2.0',
+                    error: { code: -32603, message: 'Internal server error during session termination' },
                     id: null,
                 });
             }

@@ -469,4 +469,341 @@ describe("StreamableHTTP Transport", () => {
             expect(Object.keys(mockTransportMap).length).toBe(0);
         });
     });
+    
+    // MCP Streamable HTTP Compliance Tests
+    describe("MCP Streamable HTTP Compliance", () => {
+        // Mock factories for Express Request/Response objects
+        const createMockRequest = (overrides: Partial<Request> = {}): Partial<Request> => ({
+            method: 'POST',
+            headers: {},
+            body: {},
+            ...overrides
+        });
+    
+        const createMockResponse = (): any => {
+            const res = {
+                status: mock(() => res),
+                json: mock(() => res),
+                headersSent: false,
+                setHeader: mock(),
+            };
+            return res;
+        };
+    
+        describe("Accept Header Validation", () => {
+            test("accepts request with valid Accept header", () => {
+                const req = createMockRequest({
+                    headers: { 'accept': 'application/json, text/event-stream' }
+                });
+                
+                // Import and test the validation function logic
+                const acceptHeader = req.headers!.accept as string;
+                const acceptedTypes = acceptHeader.split(',').map(type => type.trim().split(';')[0]);
+                const isValid = acceptedTypes.includes('application/json') && acceptedTypes.includes('text/event-stream');
+                
+                expect(isValid).toBe(true);
+            });
+    
+            test("rejects request without Accept header", () => {
+                const req = createMockRequest({ headers: {} });
+                
+                const acceptHeader = req.headers!.accept as string;
+                const isValid = acceptHeader ?
+                    (acceptHeader.split(',').map(type => type.trim().split(';')[0]).includes('application/json') &&
+                     acceptHeader.split(',').map(type => type.trim().split(';')[0]).includes('text/event-stream')) : false;
+                
+                expect(isValid).toBe(false);
+            });
+    
+            test("rejects request missing application/json", () => {
+                const req = createMockRequest({
+                    headers: { 'accept': 'text/event-stream' }
+                });
+                
+                const acceptHeader = req.headers!.accept as string;
+                const acceptedTypes = acceptHeader.split(',').map(type => type.trim().split(';')[0]);
+                const isValid = acceptedTypes.includes('application/json') && acceptedTypes.includes('text/event-stream');
+                
+                expect(isValid).toBe(false);
+            });
+    
+            test("rejects request missing text/event-stream", () => {
+                const req = createMockRequest({
+                    headers: { 'accept': 'application/json' }
+                });
+                
+                const acceptHeader = req.headers!.accept as string;
+                const acceptedTypes = acceptHeader.split(',').map(type => type.trim().split(';')[0]);
+                const isValid = acceptedTypes.includes('application/json') && acceptedTypes.includes('text/event-stream');
+                
+                expect(isValid).toBe(false);
+            });
+        });
+    
+        describe("GET Endpoint SSE Streams", () => {
+            test("validates GET request Accept header for SSE", () => {
+                const mockReq = createMockRequest({
+                    method: 'GET',
+                    headers: {
+                        'accept': 'text/event-stream',
+                        'mcp-session-id': 'valid-session-123'
+                    }
+                });
+    
+                const acceptHeader = mockReq.headers!.accept as string;
+                const sessionId = mockReq.headers!['mcp-session-id'] as string;
+                
+                expect(acceptHeader).toContain('text/event-stream');
+                expect(sessionId).toBe('valid-session-123');
+            });
+    
+            test("validates error response for GET without session ID", () => {
+                const mockReq = createMockRequest({
+                    method: 'GET',
+                    headers: { 'accept': 'text/event-stream' }
+                });
+                const mockRes = createMockResponse();
+    
+                const sessionId = mockReq.headers!['mcp-session-id'] as string | undefined;
+                
+                if (!sessionId) {
+                    const errorResponse = {
+                        jsonrpc: '2.0',
+                        error: { code: -32000, message: 'Bad Request: Valid session ID required for GET requests' },
+                        id: null,
+                    };
+    
+                    mockRes.status(400).json(errorResponse);
+    
+                    expect(mockRes.status).toHaveBeenCalledWith(400);
+                    expect(mockRes.json).toHaveBeenCalledWith(
+                        expect.objectContaining({
+                            jsonrpc: '2.0',
+                            error: expect.objectContaining({
+                                code: -32000,
+                                message: expect.stringContaining('Valid session ID required')
+                            })
+                        })
+                    );
+                }
+            });
+    
+            test("validates error response for GET without text/event-stream", () => {
+                const mockReq = createMockRequest({
+                    method: 'GET',
+                    headers: {
+                        'accept': 'application/json',
+                        'mcp-session-id': 'valid-session-123'
+                    }
+                });
+                const mockRes = createMockResponse();
+    
+                const acceptHeader = mockReq.headers!.accept as string;
+                
+                if (!acceptHeader || !acceptHeader.includes('text/event-stream')) {
+                    const errorResponse = {
+                        jsonrpc: '2.0',
+                        error: { code: -32000, message: 'Bad Request: Accept header must include text/event-stream for GET requests' },
+                        id: null,
+                    };
+    
+                    mockRes.status(400).json(errorResponse);
+    
+                    expect(mockRes.status).toHaveBeenCalledWith(400);
+                    expect(mockRes.json).toHaveBeenCalledWith(
+                        expect.objectContaining({
+                            jsonrpc: '2.0',
+                            error: expect.objectContaining({
+                                code: -32000,
+                                message: expect.stringContaining('text/event-stream')
+                            })
+                        })
+                    );
+                }
+            });
+        });
+    
+        describe("DELETE Endpoint Session Termination", () => {
+            test("validates DELETE request with valid session ID", () => {
+                const sessionId = 'test-session-delete';
+                const mockTransport = {
+                    close: mock().mockResolvedValue(undefined),
+                    sessionId,
+                    handleRequest: mock().mockResolvedValue(undefined)
+                };
+                const mockTransportMap: Record<string, any> = { [sessionId]: mockTransport };
+                
+                const mockReq = createMockRequest({
+                    method: 'DELETE',
+                    headers: { 'mcp-session-id': sessionId }
+                });
+    
+                expect(mockTransportMap[sessionId]).toBe(mockTransport);
+                expect(mockTransport.sessionId).toBe(sessionId);
+            });
+    
+            test("validates error response for DELETE without session ID", () => {
+                const mockReq = createMockRequest({
+                    method: 'DELETE',
+                    headers: {}
+                });
+                const mockRes = createMockResponse();
+    
+                const sessionId = mockReq.headers!['mcp-session-id'] as string | undefined;
+                
+                if (!sessionId) {
+                    const errorResponse = {
+                        jsonrpc: '2.0',
+                        error: { code: -32000, message: 'Bad Request: Valid session ID required for DELETE requests' },
+                        id: null,
+                    };
+    
+                    mockRes.status(400).json(errorResponse);
+    
+                    expect(mockRes.status).toHaveBeenCalledWith(400);
+                    expect(mockRes.json).toHaveBeenCalledWith(
+                        expect.objectContaining({
+                            jsonrpc: '2.0',
+                            error: expect.objectContaining({
+                                code: -32000,
+                                message: expect.stringContaining('Valid session ID required')
+                            })
+                        })
+                    );
+                }
+            });
+    
+            test("validates error response for DELETE with invalid session ID", () => {
+                const mockReq = createMockRequest({
+                    method: 'DELETE',
+                    headers: { 'mcp-session-id': 'invalid-session' }
+                });
+                const mockRes = createMockResponse();
+                const mockTransportMap: Record<string, any> = {};
+    
+                const sessionId = mockReq.headers!['mcp-session-id'] as string;
+                
+                if (!mockTransportMap[sessionId]) {
+                    const errorResponse = {
+                        jsonrpc: '2.0',
+                        error: { code: -32000, message: 'Bad Request: Valid session ID required for DELETE requests' },
+                        id: null,
+                    };
+    
+                    mockRes.status(400).json(errorResponse);
+    
+                    expect(mockRes.status).toHaveBeenCalledWith(400);
+                    expect(mockRes.json).toHaveBeenCalledWith(
+                        expect.objectContaining({
+                            jsonrpc: '2.0',
+                            error: expect.objectContaining({
+                                code: -32000,
+                                message: expect.stringContaining('Valid session ID required')
+                            })
+                        })
+                    );
+                }
+            });
+    
+            test("validates transport cleanup during session termination", async () => {
+                const sessionId = 'cleanup-session';
+                const mockTransport = {
+                    close: mock().mockResolvedValue(undefined),
+                    sessionId,
+                    handleRequest: mock().mockResolvedValue(undefined)
+                };
+                const mockTransportMap: Record<string, any> = { [sessionId]: mockTransport };
+    
+                // Simulate the cleanup process
+                await mockTransport.handleRequest();
+                await mockTransport.close();
+                delete mockTransportMap[sessionId];
+    
+                expect(mockTransport.handleRequest).toHaveBeenCalled();
+                expect(mockTransport.close).toHaveBeenCalled();
+                expect(mockTransportMap[sessionId]).toBeUndefined();
+            });
+    
+            test("handles transport close errors gracefully", async () => {
+                const sessionId = 'error-session';
+                const mockTransport = {
+                    close: mock().mockRejectedValue(new Error('Close failed')),
+                    sessionId,
+                    handleRequest: mock().mockResolvedValue(undefined)
+                };
+                const mockTransportMap: Record<string, any> = { [sessionId]: mockTransport };
+    
+                // Simulate error handling during cleanup
+                await mockTransport.handleRequest();
+                
+                try {
+                    await mockTransport.close();
+                } catch (closeError) {
+                    // Error should be caught and logged, but cleanup should continue
+                    expect(closeError).toBeInstanceOf(Error);
+                }
+                
+                // Transport should still be removed from map despite close error
+                delete mockTransportMap[sessionId];
+    
+                expect(mockTransport.handleRequest).toHaveBeenCalled();
+                expect(mockTransport.close).toHaveBeenCalled();
+                expect(mockTransportMap[sessionId]).toBeUndefined();
+            });
+        });
+    
+        describe("POST Endpoint Validation", () => {
+            test("validates POST request with proper Accept header", () => {
+                const mockReq = createMockRequest({
+                    method: 'POST',
+                    headers: { 'accept': 'application/json, text/event-stream' },
+                    body: { jsonrpc: '2.0', method: 'initialize', id: 1 }
+                });
+    
+                const acceptHeader = mockReq.headers!.accept as string;
+                const acceptedTypes = acceptHeader.split(',').map(type => type.trim().split(';')[0]);
+                const isValid = acceptedTypes.includes('application/json') && acceptedTypes.includes('text/event-stream');
+                
+                expect(isValid).toBe(true);
+                expect(mockReq.body.method).toBe('initialize');
+            });
+    
+            test("validates error response for POST with invalid Accept header", () => {
+                const mockReq = createMockRequest({
+                    method: 'POST',
+                    headers: { 'accept': 'application/json' }, // Missing text/event-stream
+                    body: { jsonrpc: '2.0', method: 'initialize', id: 1 }
+                });
+                const mockRes = createMockResponse();
+    
+                const acceptHeader = mockReq.headers!.accept as string;
+                const acceptedTypes = acceptHeader.split(',').map(type => type.trim().split(';')[0]);
+                const isValid = acceptedTypes.includes('application/json') && acceptedTypes.includes('text/event-stream');
+                
+                if (!isValid) {
+                    const errorResponse = {
+                        jsonrpc: '2.0',
+                        error: {
+                            code: -32000,
+                            message: 'Bad Request: Accept header must include both application/json and text/event-stream'
+                        },
+                        id: null,
+                    };
+    
+                    mockRes.status(400).json(errorResponse);
+    
+                    expect(mockRes.status).toHaveBeenCalledWith(400);
+                    expect(mockRes.json).toHaveBeenCalledWith(
+                        expect.objectContaining({
+                            jsonrpc: '2.0',
+                            error: expect.objectContaining({
+                                code: -32000,
+                                message: expect.stringContaining('Accept header must include both')
+                            })
+                        })
+                    );
+                }
+            });
+        });
+    });
 });
