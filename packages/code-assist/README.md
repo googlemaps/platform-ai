@@ -3,6 +3,12 @@
 [![License](https://img.shields.io/github/license/googlemaps/platform-ai?color=blue)][license]
 [![Discord](https://img.shields.io/discord/676948200904589322?color=6A7EC2&logo=discord&logoColor=ffffff)][Discord server]
 [![Install MCP Server](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/en/install-mcp?name=google-maps-platform&config=eyJjb21tYW5kIjoibnB4IC15IEBnb29nbGVtYXBzL2NvZGUtYXNzaXN0LW1jcCJ9)
+<a href="https://studio.firebase.google.com/new/gemini-maps">
+  <img
+    height="28"
+    alt="Try in Firebase Studio"
+    src="https://cdn.firebasestudio.dev/btn/try_dark_32.svg">
+</a>
 
 
 # <img height="48" width="48" src="https://avatars.githubusercontent.com/u/3717923?s=200&v=4" alt="Google Maps Platform Logo" /> Google Maps Platform Code Assist Toolkit 
@@ -123,6 +129,7 @@ Add the server to your preferred AI client's MCP configuration file. Find your c
     ```
 
 * **[Firebase Studio](https://firebase.google.com/docs/studio/customize-workspace)**
+    * <a href="https://studio.firebase.google.com/new/gemini-maps"> <img height="28" alt="Try in Firebase Studio" src="https://cdn.firebasestudio.dev/btn/try_dark_32.svg"></a> with Code Assist MCP installed 
     * Add to your project's `mcp.json` file in the `.idx` folder in your Firebase Studio workspace
     ```json
     {
