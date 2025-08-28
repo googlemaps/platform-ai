@@ -444,6 +444,8 @@ curl -X POST http://localhost:3215/mcp \
 
 ### Client-Specific Configuration
 
+Ensure you have the server running either remotely or locally e.g. `npx -y @googlemaps/code-assist-mcp@latest --port 3215` then connect using your client agent:
+
 **Cline (VS Code Extension)**
 
 Add to `cline_mcp_settings.json`:
@@ -457,6 +459,29 @@ Add to `cline_mcp_settings.json`:
       "autoApprove": [
         "retrieve-instructions",
         "retrieve-google-maps-platform-docs"
+      ]
+    }
+  }
+}
+```
+
+```Roo Code (VS Code Extension)```
+
+Add to `mcp_settings.json` (note that`type` is set to `streamableHttp`, slightly different than Cline's `streamableHttp` above)
+
+```json
+{
+  "mcpServers": {
+    "google-maps-platform-code-assist": {
+      "type": "streamableHttp", 
+      "url": "http://localhost:3125/mcp",
+      "alwaysAllow": [
+        "retrieve-instructions",
+        "retrieve-google-maps-platform-docs"
+      ],
+      "autoApprove": [
+        "retrieve-google-maps-platform-docs",
+        "retrieve-instructions"
       ]
     }
   }
