@@ -218,8 +218,8 @@ describe("startHttpServer", () => {
     });
 });
 
-// Phase 2: Advanced MCP Streamable HTTP Compliance Tests
-describe("Phase 2: Advanced MCP Streamable HTTP Compliance", () => {
+// Advanced MCP Streamable HTTP Compliance Tests
+describe("Advanced MCP Streamable HTTP Compliance", () => {
     
     describe("Feature 4: Origin Header Validation", () => {
         test("allows requests without Origin header (server-to-server)", () => {
