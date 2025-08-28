@@ -34,6 +34,23 @@ function validateAcceptHeader(req: Request): boolean {
   return acceptedTypes.includes('application/json') && acceptedTypes.includes('text/event-stream');
 }
 
+// Feature 4: Origin header validation for DNS rebinding protection
+function validateOriginHeader(req: Request): boolean {
+  const origin = req.headers.origin;
+  
+  // Allow requests without Origin header (server-to-server)
+  if (!origin) return true;
+  
+  // For development, allow localhost origins
+  if (process.env.NODE_ENV !== 'production') {
+    return origin.startsWith('http://localhost') || origin.startsWith('https://localhost');
+  }
+  
+  // In production, validate against allowed origins
+  const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [];
+  return allowedOrigins.includes(origin);
+}
+
 const RetrieveGoogleMapsPlatformDocs: Tool = {
     name: 'retrieve-google-maps-platform-docs',
     description: 'Searches Google Maps Platform documentation, code samples, GitHub repositories, and terms of service to answer user questions. IMPORTANT: Before calling this tool, call the `retrieve-instructions` tool or load the `instructions` resource to add crucial system instructions and preamble to context.',
@@ -286,13 +303,27 @@ async function runServer() {
 
     // MCP POST endpoint for initialization and RPC calls
     app.post('/mcp', async (req: Request, res: Response) => {
-        // Feature 1: Accept header validation
-        if (!validateAcceptHeader(req)) {
-            return res.status(400).json({
+        // Feature 4: Origin header validation for security
+        if (!validateOriginHeader(req)) {
+            return res.status(403).json({
                 jsonrpc: '2.0',
                 error: {
                     code: -32000,
-                    message: 'Bad Request: Accept header must include both application/json and text/event-stream'
+                    message: 'Forbidden: Invalid or missing Origin header',
+                    data: { code: 'INVALID_ORIGIN' }
+                },
+                id: null,
+            });
+        }
+
+        // Feature 1: Accept header validation
+        if (!validateAcceptHeader(req)) {
+            return res.status(406).json({
+                jsonrpc: '2.0',
+                error: {
+                    code: -32000,
+                    message: 'Not Acceptable: Accept header must include both application/json and text/event-stream',
+                    data: { code: 'INVALID_ACCEPT_HEADER' }
                 },
                 id: null,
             });
@@ -364,25 +395,52 @@ async function runServer() {
         }
     });
 
-    // Feature 2: GET endpoint for SSE streams
+    // Feature 2: GET endpoint for SSE streams with Feature 6: Resumability support
     app.get('/mcp', async (req: Request, res: Response) => {
+        // Feature 4: Origin header validation for security
+        if (!validateOriginHeader(req)) {
+            return res.status(403).json({
+                jsonrpc: '2.0',
+                error: {
+                    code: -32000,
+                    message: 'Forbidden: Invalid or missing Origin header',
+                    data: { code: 'INVALID_ORIGIN' }
+                },
+                id: null,
+            });
+        }
+
         // Feature 1: Accept header validation for GET (requires text/event-stream)
         const acceptHeader = req.headers.accept;
         if (!acceptHeader || !acceptHeader.includes('text/event-stream')) {
-            return res.status(400).json({
+            return res.status(406).json({
                 jsonrpc: '2.0',
-                error: { code: -32000, message: 'Bad Request: Accept header must include text/event-stream for GET requests' },
+                error: {
+                    code: -32000,
+                    message: 'Not Acceptable: Accept header must include text/event-stream for GET requests',
+                    data: { code: 'INVALID_ACCEPT_HEADER' }
+                },
                 id: null,
             });
         }
 
         const sessionId = req.headers['mcp-session-id'] as string | undefined;
         if (!sessionId || !transports[sessionId]) {
-            return res.status(400).json({
+            return res.status(404).json({
                 jsonrpc: '2.0',
-                error: { code: -32000, message: 'Bad Request: Valid session ID required for GET requests' },
+                error: {
+                    code: -32000,
+                    message: 'Not Found: Valid session ID required for GET requests',
+                    data: { code: 'SESSION_NOT_FOUND' }
+                },
                 id: null,
             });
+        }
+
+        // Feature 6: Check for Last-Event-ID for resumability
+        const lastEventId = req.headers['last-event-id'] as string;
+        if (lastEventId) {
+            console.log(`SSE stream resuming from event ID: ${lastEventId} for session: ${sessionId}`);
         }
 
         try {
@@ -402,11 +460,28 @@ async function runServer() {
 
     // Feature 3: DELETE endpoint for session termination
     app.delete('/mcp', async (req: Request, res: Response) => {
+        // Feature 4: Origin header validation for security
+        if (!validateOriginHeader(req)) {
+            return res.status(403).json({
+                jsonrpc: '2.0',
+                error: {
+                    code: -32000,
+                    message: 'Forbidden: Invalid or missing Origin header',
+                    data: { code: 'INVALID_ORIGIN' }
+                },
+                id: null,
+            });
+        }
+
         const sessionId = req.headers['mcp-session-id'] as string | undefined;
         if (!sessionId || !transports[sessionId]) {
-            return res.status(400).json({
+            return res.status(404).json({
                 jsonrpc: '2.0',
-                error: { code: -32000, message: 'Bad Request: Valid session ID required for DELETE requests' },
+                error: {
+                    code: -32000,
+                    message: 'Not Found: Valid session ID required for DELETE requests',
+                    data: { code: 'SESSION_NOT_FOUND' }
+                },
                 id: null,
             });
         }

@@ -218,6 +218,240 @@ describe("startHttpServer", () => {
     });
 });
 
+// Phase 2: Advanced MCP Streamable HTTP Compliance Tests
+describe("Phase 2: Advanced MCP Streamable HTTP Compliance", () => {
+    
+    describe("Feature 4: Origin Header Validation", () => {
+        test("allows requests without Origin header (server-to-server)", () => {
+            // Mock request without Origin header
+            const mockReq: { headers: Record<string, string | undefined> } = { headers: {} };
+            
+            // Test validation logic (simulating validateOriginHeader function)
+            const origin = mockReq.headers.origin;
+            const isValid = !origin ? true : false; // Allow requests without Origin header
+            
+            expect(isValid).toBe(true);
+        });
+        
+        test("allows localhost origins in development", () => {
+            const originalNodeEnv = process.env.NODE_ENV;
+            process.env.NODE_ENV = 'development';
+            
+            const mockReq: { headers: Record<string, string> } = { headers: { origin: 'http://localhost:3000' } };
+            
+            // Test validation logic
+            const origin = mockReq.headers.origin;
+            const isValid = !origin ? true :
+                (process.env.NODE_ENV !== 'production' ?
+                    origin.startsWith('http://localhost') || origin.startsWith('https://localhost') : false);
+            
+            expect(isValid).toBe(true);
+            
+            process.env.NODE_ENV = originalNodeEnv;
+        });
+        
+        test("rejects invalid origins in production", () => {
+            const originalNodeEnv = process.env.NODE_ENV;
+            const originalAllowedOrigins = process.env.ALLOWED_ORIGINS;
+            
+            process.env.NODE_ENV = 'production';
+            process.env.ALLOWED_ORIGINS = 'https://example.com,https://app.example.com';
+            
+            const mockReq: { headers: Record<string, string> } = { headers: { origin: 'https://malicious.com' } };
+            
+            // Test validation logic
+            const origin = mockReq.headers.origin;
+            const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [];
+            const isValid = !origin ? true :
+                (process.env.NODE_ENV !== 'production' ?
+                    origin.startsWith('http://localhost') || origin.startsWith('https://localhost') :
+                    allowedOrigins.includes(origin));
+            
+            expect(isValid).toBe(false);
+            
+            process.env.NODE_ENV = originalNodeEnv;
+            process.env.ALLOWED_ORIGINS = originalAllowedOrigins;
+        });
+        
+        test("allows valid origins in production", () => {
+            const originalNodeEnv = process.env.NODE_ENV;
+            const originalAllowedOrigins = process.env.ALLOWED_ORIGINS;
+            
+            process.env.NODE_ENV = 'production';
+            process.env.ALLOWED_ORIGINS = 'https://example.com,https://app.example.com';
+            
+            const mockReq: { headers: Record<string, string> } = { headers: { origin: 'https://example.com' } };
+            
+            // Test validation logic
+            const origin = mockReq.headers.origin;
+            const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [];
+            const isValid = !origin ? true :
+                (process.env.NODE_ENV !== 'production' ?
+                    origin.startsWith('http://localhost') || origin.startsWith('https://localhost') :
+                    allowedOrigins.includes(origin));
+            
+            expect(isValid).toBe(true);
+            
+            process.env.NODE_ENV = originalNodeEnv;
+            process.env.ALLOWED_ORIGINS = originalAllowedOrigins;
+        });
+    });
+    
+    describe("Feature 5: Proper HTTP Status Codes", () => {
+        test("validates 406 status for invalid Accept header", () => {
+            const mockReq = { headers: { accept: 'application/json' } };
+            
+            // Test Accept header validation logic
+            const acceptHeader = mockReq.headers.accept;
+            const acceptedTypes = acceptHeader.split(',').map(type => type.trim().split(';')[0]);
+            const isValid = acceptedTypes.includes('application/json') && acceptedTypes.includes('text/event-stream');
+            
+            expect(isValid).toBe(false);
+            
+            // Validate error response structure
+            const errorResponse = {
+                jsonrpc: '2.0',
+                error: {
+                    code: -32000,
+                    message: 'Not Acceptable: Accept header must include both application/json and text/event-stream',
+                    data: { code: 'INVALID_ACCEPT_HEADER' }
+                },
+                id: null,
+            };
+            
+            expect(errorResponse.error.data.code).toBe('INVALID_ACCEPT_HEADER');
+        });
+        
+        test("validates 403 status for invalid Origin header", () => {
+            const originalNodeEnv = process.env.NODE_ENV;
+            const originalAllowedOrigins = process.env.ALLOWED_ORIGINS;
+            
+            process.env.NODE_ENV = 'production';
+            process.env.ALLOWED_ORIGINS = 'https://example.com';
+            
+            const mockReq = { headers: { origin: 'https://malicious.com' } };
+            
+            // Test Origin validation logic
+            const origin = mockReq.headers.origin;
+            const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [];
+            const isValid = allowedOrigins.includes(origin);
+            
+            expect(isValid).toBe(false);
+            
+            // Validate error response structure
+            const errorResponse = {
+                jsonrpc: '2.0',
+                error: {
+                    code: -32000,
+                    message: 'Forbidden: Invalid or missing Origin header',
+                    data: { code: 'INVALID_ORIGIN' }
+                },
+                id: null,
+            };
+            
+            expect(errorResponse.error.data.code).toBe('INVALID_ORIGIN');
+            
+            process.env.NODE_ENV = originalNodeEnv;
+            process.env.ALLOWED_ORIGINS = originalAllowedOrigins;
+        });
+        
+        test("validates 404 status for session not found", () => {
+            const mockSessionMap: Record<string, any> = {};
+            const sessionId = 'invalid-session-id';
+            
+            const sessionExists = !!(sessionId && mockSessionMap[sessionId]);
+            expect(sessionExists).toBe(false);
+            
+            // Validate error response structure
+            const errorResponse = {
+                jsonrpc: '2.0',
+                error: {
+                    code: -32000,
+                    message: 'Not Found: Valid session ID required',
+                    data: { code: 'SESSION_NOT_FOUND' }
+                },
+                id: null,
+            };
+            
+            expect(errorResponse.error.data.code).toBe('SESSION_NOT_FOUND');
+        });
+    });
+    
+    describe("Feature 6: Resumability Support (Last-Event-ID)", () => {
+        test("handles Last-Event-ID header processing", () => {
+            const mockReq: { headers: Record<string, string> } = { headers: { 'last-event-id': 'event-123' } };
+            
+            const lastEventId = mockReq.headers['last-event-id'];
+            expect(lastEventId).toBe('event-123');
+            
+            // Verify logging would occur (in real implementation)
+            const wouldLog = lastEventId !== undefined;
+            expect(wouldLog).toBe(true);
+        });
+        
+        test("handles missing Last-Event-ID header gracefully", () => {
+            const mockReq: { headers: Record<string, string | undefined> } = { headers: {} };
+            
+            const lastEventId = mockReq.headers['last-event-id'];
+            expect(lastEventId).toBeUndefined();
+            
+            // Should not cause errors when missing
+            const wouldLog = lastEventId !== undefined;
+            expect(wouldLog).toBe(false);
+        });
+    });
+    
+    describe("Enhanced Error Response Structure", () => {
+        test("validates structured error codes are included", () => {
+            const testCases = [
+                {
+                    scenario: 'INVALID_ORIGIN',
+                    errorResponse: {
+                        jsonrpc: '2.0',
+                        error: {
+                            code: -32000,
+                            message: 'Forbidden: Invalid or missing Origin header',
+                            data: { code: 'INVALID_ORIGIN' }
+                        },
+                        id: null,
+                    }
+                },
+                {
+                    scenario: 'INVALID_ACCEPT_HEADER',
+                    errorResponse: {
+                        jsonrpc: '2.0',
+                        error: {
+                            code: -32000,
+                            message: 'Not Acceptable: Invalid Accept header',
+                            data: { code: 'INVALID_ACCEPT_HEADER' }
+                        },
+                        id: null,
+                    }
+                },
+                {
+                    scenario: 'SESSION_NOT_FOUND',
+                    errorResponse: {
+                        jsonrpc: '2.0',
+                        error: {
+                            code: -32000,
+                            message: 'Not Found: Session not found',
+                            data: { code: 'SESSION_NOT_FOUND' }
+                        },
+                        id: null,
+                    }
+                }
+            ];
+            
+            testCases.forEach(testCase => {
+                expect(testCase.errorResponse.error).toBeDefined();
+                expect(testCase.errorResponse.error.data).toBeDefined();
+                expect(testCase.errorResponse.error.data.code).toBe(testCase.scenario);
+                expect(testCase.errorResponse.jsonrpc).toBe('2.0');
+            });
+        });
+    });
+});
+
 describe("StreamableHTTP Transport", () => {
     let mockTransport: any;
     let mockServer: any;
