@@ -98,7 +98,7 @@ const instructionsResource: Resource = {
 let usageInstructions: any = null;
 
 // Session management for StreamableHTTP transport
-const transports: Record<string, StreamableHTTPServerTransport> = {};
+const transports = new Map<string, StreamableHTTPServerTransport>();
 
 export function _setUsageInstructions(value: any) {
     usageInstructions = value;
@@ -301,210 +301,65 @@ async function runServer() {
         exposedHeaders: ['Mcp-Session-Id']
     }));
 
-    // MCP POST endpoint for initialization and RPC calls
-    app.post('/mcp', async (req: Request, res: Response) => {
-        // Feature 4: Origin header validation for security
+    app.all('/mcp', async (req: Request, res: Response) => {
         if (!validateOriginHeader(req)) {
             return res.status(403).json({
                 jsonrpc: '2.0',
-                error: {
-                    code: -32000,
-                    message: 'Forbidden: Invalid or missing Origin header',
-                    data: { code: 'INVALID_ORIGIN' }
-                },
+                error: { code: -32000, message: 'Forbidden: Invalid or missing Origin header', data: { code: 'INVALID_ORIGIN' } },
                 id: null,
             });
         }
 
-        // Feature 1: Accept header validation
         if (!validateAcceptHeader(req)) {
             return res.status(406).json({
                 jsonrpc: '2.0',
-                error: {
-                    code: -32000,
-                    message: 'Not Acceptable: Accept header must include both application/json and text/event-stream',
-                    data: { code: 'INVALID_ACCEPT_HEADER' }
-                },
+                error: { code: -32000, message: 'Not Acceptable: Accept header must include both application/json and text/event-stream', data: { code: 'INVALID_ACCEPT_HEADER' } },
+                id: null,
+            });
+        }
+
+        const sessionId = req.headers['mcp-session-id'] as string | undefined;
+        let transport: StreamableHTTPServerTransport;
+
+        if (sessionId && transports.has(sessionId)) {
+            transport = transports.get(sessionId)!;
+        } else if (!sessionId && isInitializeRequest(req.body)) {
+            transport = new StreamableHTTPServerTransport({
+                sessionIdGenerator: () => randomUUID(),
+                onsessioninitialized: (newSessionId) => {
+                    transports.set(newSessionId, transport);
+                    console.log(`StreamableHTTP session initialized: ${newSessionId}`);
+                }
+            });
+
+            transport.onclose = () => {
+                const sid = transport.sessionId;
+                if (sid && transports.has(sid)) {
+                    transports.delete(sid);
+                    console.log(`Transport closed for session ${sid}`);
+                }
+            };
+
+            const server = getServer();
+            await server.connect(transport);
+        } else {
+            const errorData = sessionId ? { code: 'SESSION_NOT_FOUND', message: 'Not Found: Invalid session ID' } : { code: 'BAD_REQUEST', message: 'Bad Request: No valid session ID provided for non-init request' };
+            const statusCode = sessionId ? 404 : 400;
+            return res.status(statusCode).json({
+                jsonrpc: '2.0',
+                error: { code: -32000, message: errorData.message, data: { code: errorData.code } },
                 id: null,
             });
         }
 
         try {
-            const sessionId = req.headers['mcp-session-id'] as string | undefined;
-            let transport: StreamableHTTPServerTransport;
-
-            if (sessionId && transports[sessionId]) {
-                // Reuse existing transport
-                transport = transports[sessionId];
-            } else if (!sessionId) {
-                // For compatibility with SDK 1.17.4, be more permissive with initialization
-                let isInitRequest = false;
-                try {
-                    isInitRequest = isInitializeRequest(req.body);
-                } catch (e) {
-                    // Fallback: check for initialize method manually
-                    isInitRequest = req.body?.method === 'initialize' ||
-                                  (req.body?.jsonrpc === '2.0' && req.body?.method === 'initialize');
-                }
-
-                if (isInitRequest) {
-                    // Create new transport for initialization
-                    transport = new StreamableHTTPServerTransport({
-                        sessionIdGenerator: () => randomUUID(),
-                        onsessioninitialized: (sessionId) => {
-                            console.log(`StreamableHTTP session initialized: ${sessionId}`);
-                            transports[sessionId] = transport;
-                        }
-                    });
-
-                    transport.onclose = () => {
-                        const sid = transport.sessionId;
-                        if (sid && transports[sid]) {
-                            console.log(`Transport closed for session ${sid}`);
-                            delete transports[sid];
-                        }
-                    };
-
-                    const server = getServer();
-                    await server.connect(transport);
-                } else {
-                    return res.status(400).json({
-                        jsonrpc: '2.0',
-                        error: { code: -32000, message: 'Bad Request: No valid session ID provided for non-init request' },
-                        id: null,
-                    });
-                }
-            } else {
-                return res.status(400).json({
-                    jsonrpc: '2.0',
-                    error: { code: -32000, message: 'Bad Request: Invalid session ID' },
-                    id: null,
-                });
-            }
-
             await transport.handleRequest(req, res, req.body);
         } catch (error) {
-            console.error('Error handling MCP POST request:', error);
+            console.error(`Error handling MCP ${req.method} request:`, error);
             if (!res.headersSent) {
                 res.status(500).json({
                     jsonrpc: '2.0',
                     error: { code: -32603, message: 'Internal server error' },
-                    id: null,
-                });
-            }
-        }
-    });
-
-    // Feature 2: GET endpoint for SSE streams with Feature 6: Resumability support
-    app.get('/mcp', async (req: Request, res: Response) => {
-        // Feature 4: Origin header validation for security
-        if (!validateOriginHeader(req)) {
-            return res.status(403).json({
-                jsonrpc: '2.0',
-                error: {
-                    code: -32000,
-                    message: 'Forbidden: Invalid or missing Origin header',
-                    data: { code: 'INVALID_ORIGIN' }
-                },
-                id: null,
-            });
-        }
-
-        // Feature 1: Accept header validation for GET (requires text/event-stream)
-        const acceptHeader = req.headers.accept;
-        if (!acceptHeader || !acceptHeader.includes('text/event-stream')) {
-            return res.status(406).json({
-                jsonrpc: '2.0',
-                error: {
-                    code: -32000,
-                    message: 'Not Acceptable: Accept header must include text/event-stream for GET requests',
-                    data: { code: 'INVALID_ACCEPT_HEADER' }
-                },
-                id: null,
-            });
-        }
-
-        const sessionId = req.headers['mcp-session-id'] as string | undefined;
-        if (!sessionId || !transports[sessionId]) {
-            return res.status(404).json({
-                jsonrpc: '2.0',
-                error: {
-                    code: -32000,
-                    message: 'Not Found: Valid session ID required for GET requests',
-                    data: { code: 'SESSION_NOT_FOUND' }
-                },
-                id: null,
-            });
-        }
-
-        // Feature 6: Check for Last-Event-ID for resumability
-        const lastEventId = req.headers['last-event-id'] as string;
-        if (lastEventId) {
-            console.log(`SSE stream resuming from event ID: ${lastEventId} for session: ${sessionId}`);
-        }
-
-        try {
-            const transport = transports[sessionId];
-            await transport.handleRequest(req, res);
-        } catch (error) {
-            console.error('Error handling GET SSE request:', error);
-            if (!res.headersSent) {
-                res.status(500).json({
-                    jsonrpc: '2.0',
-                    error: { code: -32603, message: 'Internal server error' },
-                    id: null,
-                });
-            }
-        }
-    });
-
-    // Feature 3: DELETE endpoint for session termination
-    app.delete('/mcp', async (req: Request, res: Response) => {
-        // Feature 4: Origin header validation for security
-        if (!validateOriginHeader(req)) {
-            return res.status(403).json({
-                jsonrpc: '2.0',
-                error: {
-                    code: -32000,
-                    message: 'Forbidden: Invalid or missing Origin header',
-                    data: { code: 'INVALID_ORIGIN' }
-                },
-                id: null,
-            });
-        }
-
-        const sessionId = req.headers['mcp-session-id'] as string | undefined;
-        if (!sessionId || !transports[sessionId]) {
-            return res.status(404).json({
-                jsonrpc: '2.0',
-                error: {
-                    code: -32000,
-                    message: 'Not Found: Valid session ID required for DELETE requests',
-                    data: { code: 'SESSION_NOT_FOUND' }
-                },
-                id: null,
-            });
-        }
-
-        try {
-            const transport = transports[sessionId];
-            await transport.handleRequest(req, res);
-            
-            // Clean up transport after successful termination
-            try {
-                await transport.close();
-            } catch (closeError) {
-                console.error(`Error closing transport for session ${sessionId}:`, closeError);
-            }
-            delete transports[sessionId];
-            
-            console.log(`Session ${sessionId} terminated via DELETE request`);
-        } catch (error) {
-            console.error('Error handling DELETE session termination:', error);
-            if (!res.headersSent) {
-                res.status(500).json({
-                    jsonrpc: '2.0',
-                    error: { code: -32603, message: 'Internal server error during session termination' },
                     id: null,
                 });
             }
@@ -578,14 +433,14 @@ export const startHttpServer = (app: express.Express, p: number): Promise<http.S
 // Graceful shutdown
 process.on('SIGINT', async () => {
     console.log('Shutting down server...');
-    for (const sessionId in transports) {
+    for (const transport of transports.values()) {
         try {
-            await transports[sessionId].close();
-            delete transports[sessionId];
+            await transport.close();
         } catch (error) {
-            console.error(`Error closing transport for session ${sessionId}:`, error);
+            console.error(`Error closing transport for session ${transport.sessionId}:`, error);
         }
     }
+    transports.clear();
     console.log('Server shutdown complete');
     process.exit(0);
 });
