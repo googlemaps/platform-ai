@@ -327,14 +327,6 @@ This server supports two standard MCP communication protocols:
 
 ## 🌐 StreamableHTTP Developer Guide
 
-> [!WARNING]
-> **Experimental Feature**: StreamableHTTP support is currently experimental and should be used with caution. This implementation lacks essential production safeguards:
-> - **No Authentication**: The HTTP endpoint is open and unauthenticated
-> - **No Rate Limiting**: No protection against abuse or excessive requests
-> - **No Access Controls**: Anyone with network access can use the server
->
-> **Recommendation**: Use the default `stdio` transport for most deployments today. Only use StreamableHTTP for development, testing, or in secure network environments where these limitations are acceptable.
-
 For developers who need to integrate the Google Maps Platform Code Assist MCP server using the StreamableHTTP transport, this guide provides detailed setup instructions, configuration examples, and troubleshooting tips.
 
 ### When to Use StreamableHTTP
@@ -394,8 +386,16 @@ Accept: application/json, text/event-stream
 
 If your client doesn't include both content types, you'll receive this error:
 ```
-{"jsonrpc":"2.0","error":{"code":-32000,"message":"Not Acceptable: Client must accept both application/json and text/event-stream"},"id":null}
+{"jsonrpc":"2.0","error":{"code":-32000,"message":"Not Acceptable: Accept header must include both application/json and text/event-stream","data":{"code":"INVALID_ACCEPT_HEADER"}},"id":null}
 ```
+
+**Security Features**
+
+The server now includes production-grade security enhancements:
+- **Origin Header Validation**: Protects against DNS rebinding attacks with configurable allowed origins
+- **Environment-Aware Security**: Automatic localhost allowance in development, strict validation in production
+- **Structured Error Responses**: Machine-readable error codes for better client-side error handling
+- **Connection Resumability**: Last-Event-ID header support for SSE stream resumption
 
 ### Testing Your Setup
 
