@@ -267,7 +267,7 @@ Update your client's MCP configuration to point to the local proxy.
     }
     ```
 
-  * If your client only supports `command`, use [`mcp-remote`](https://www.google.com/search?q=%5Bhttps://www.npmjs.com/package/mcp-remote%5D\(https://www.npmjs.com/package/mcp-remote\)) as a bridge:
+  * If your client only supports `command`, use [`mcp-remote`](https://www.npmjs.com/package/mcp-remote) as a bridge:
 
     ```json
     "google-maps-platform-code-assist": {
@@ -324,7 +324,7 @@ If the specified port is unavailable, the server will automatically find and sta
 This server supports two standard MCP communication protocols:
 
   * **`stdio`**: This is the default transport used when a client invokes the server via a `command`. It communicates over the standard input/output streams, making it ideal for local command-line execution.
-  * **`Streamable-HTTP`**: The server exposes a `/mcp` endpoint that accepts POST requests. This is used by clients that connect via a `url` and is the standard for remote server connections. Our implementation supports streaming for real-time, interactive responses.
+  * **`Streamable HTTP`**: The server exposes a `/mcp` endpoint that accepts POST requests. This is used by clients that connect via a `url` and is the standard for remote server connections. Our implementation supports streaming for real-time, interactive responses.
 
 <!-- [END maps_Transports] -->
 
@@ -332,19 +332,19 @@ This server supports two standard MCP communication protocols:
 
 <!-- [START maps_StreamableHTTPGuide] -->
 
-## 🌐 StreamableHTTP Developer Guide
+## 🌐 Streamable HTTP Developer Guide
 
-For developers who need to integrate the Google Maps Platform Code Assist MCP server using the StreamableHTTP transport, this guide provides detailed setup instructions, configuration examples, and troubleshooting tips.
+For developers who need to integrate the Google Maps Platform Code Assist MCP server using the Streamable HTTP transport, this guide provides detailed setup instructions, configuration examples, and troubleshooting tips.
 
-### When to Use StreamableHTTP
+### When to Use Streamable HTTP
 
-Use StreamableHTTP transport when:
+Use Streamable HTTP transport when:
 - Your client requires a URL-based connection instead of command execution
 - You need to run the server remotely (e.g., on Google Cloud Run)
 - Your development environment requires HTTP-based communication
 - You're building custom integrations that communicate over HTTP
 
-### Local StreamableHTTP Setup
+### Local Streamable HTTP Setup
 
 **1. Start the Server**
 
@@ -364,14 +364,14 @@ The server will be available at: `http://localhost:3215/mcp`
 
 **2. Client Configuration**
 
-Configure your MCP client to use the StreamableHTTP endpoint:
+Configure your MCP client to use the Streamable HTTP endpoint:
 
 ```json
 {
   "mcpServers": {
     "google-maps-platform-code-assist": {
       "url": "http://localhost:3215/mcp",
-      "type": "streamableHttp",
+      "type": "streamable-http",
       "autoApprove": [
         "retrieve-instructions",
         "retrieve-google-maps-platform-docs"
@@ -385,7 +385,7 @@ Configure your MCP client to use the StreamableHTTP endpoint:
 
 **Accept Headers**
 
-The StreamableHTTP transport uses Server-Sent Events (SSE) and requires clients to accept both content types:
+The Streamable HTTP transport uses Server-Sent Events (SSE) and requires clients to accept both content types:
 
 ```
 Accept: application/json, text/event-stream
@@ -396,13 +396,15 @@ If your client doesn't include both content types, you'll receive this error:
 {"jsonrpc":"2.0","error":{"code":-32000,"message":"Not Acceptable: Accept header must include both application/json and text/event-stream","data":{"code":"INVALID_ACCEPT_HEADER"}},"id":null}
 ```
 
-**Security Features**
+#### Security Warning
 
-The server now includes production-grade security enhancements:
-- **Origin Header Validation**: Protects against DNS rebinding attacks with configurable allowed origins
-- **Environment-Aware Security**: Automatic localhost allowance in development, strict validation in production
-- **Structured Error Responses**: Machine-readable error codes for better client-side error handling
-- **Connection Resumability**: Last-Event-ID header support for SSE stream resumption
+When implementing Streamable HTTP transport:
+
+1. Servers **MUST** validate the `Origin` header on all incoming connections to prevent DNS rebinding attacks
+2. When running locally, servers **SHOULD** bind only to localhost (127.0.0.1) rather than all network interfaces (0.0.0.0)
+3. Servers **SHOULD** implement proper authentication for all connections
+
+Without these protections, attackers could use DNS rebinding to interact with local MCP servers from remote websites.
 
 ### Testing Your Setup
 
@@ -420,7 +422,7 @@ curl -X POST http://localhost:3215/mcp \
     "id": 1,
     "method": "initialize",
     "params": {
-      "protocolVersion": "2024-11-05",
+      "protocolVersion": "2025-03-26",
       "capabilities": {},
       "clientInfo": {"name": "test-client", "version": "1.0.0"}
     }
@@ -430,7 +432,7 @@ curl -X POST http://localhost:3215/mcp \
 Expected response:
 ```
 event: message
-data: {"result":{"protocolVersion":"2024-11-05","capabilities":{"tools":{},"logging":{},"resources":{}},"serverInfo":{"name":"code-assist-mcp","version":"0.1.3"}},"jsonrpc":"2.0","id":1}
+data: {"result":{"protocolVersion":"2025-03-26","capabilities":{"tools":{},"logging":{},"resources":{}},"serverInfo":{"name":"code-assist-mcp","version":"0.1.3"}},"jsonrpc":"2.0","id":1}
 ```
 
 **Test Available Tools**
@@ -454,7 +456,7 @@ Add to `cline_mcp_settings.json`:
 {
   "mcpServers": {
     "google-maps-platform-code-assist": {
-      "type": "streamableHttp",
+      "type": "streamable-http",
       "url": "http://localhost:3215/mcp",
       "alwaysAllow": [
         "retrieve-instructions",
@@ -471,7 +473,7 @@ Add to `cline_mcp_settings.json`:
 
 **Roo Code (VS Code Extension)**
 
-Add to `mcp_settings.json` (note that`type` is set to `streamable-http`, slightly different than Cline's `streamableHttp` type parameter)
+Add to `mcp_settings.json`:
 
 ```json
 {
@@ -494,7 +496,7 @@ Add to `mcp_settings.json` (note that`type` is set to `streamable-http`, slightl
 
 ### Performance Considerations
 
-- StreamableHTTP supports real-time streaming responses
+- Streamable HTTP supports real-time streaming responses
 - Keep-alive connections are maintained for better performance
 - Server handles multiple concurrent connections
 - Consider load balancing for high-traffic scenarios
