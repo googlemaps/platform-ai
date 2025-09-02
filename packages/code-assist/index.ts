@@ -80,7 +80,7 @@ const RetrieveGoogleMapsPlatformDocs: Tool = {
 
 const RetrieveInstructions: Tool = {
     name: 'retrieve-instructions',
-    description: 'IMPORTANT: Call this `retrieve-instructions` tool *first* before calling any other tools such as `retrieve-google-maps-platform-docs`. `retrieve-instructions` provides crucial system instructions and preamble to context about Google Maps Platform and how to best use the tools in the Google Maps Platform code assist MCP server.',
+    description: 'IMPORTANT: Call this `retrieve-instructions` tool *first* before calling any other tools on this Google Maps Platform Code Assist MCP server. This `retrieve-instructions` tool provides crucial system instructions and context about Google Maps Platform products, use cases, terms, and pricing so agents can achieve the best results using all of the other tools in the Google Maps Platform Code Assist MCP toolkit.',
     inputSchema: {
         type: 'object',
         properties: {},
