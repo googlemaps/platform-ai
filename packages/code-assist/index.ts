@@ -53,7 +53,7 @@ function validateOriginHeader(req: Request): boolean {
 
 const RetrieveGoogleMapsPlatformDocs: Tool = {
     name: 'retrieve-google-maps-platform-docs',
-    description: 'Searches Google Maps Platform documentation, code samples, GitHub repositories, and terms of service to answer user questions. IMPORTANT: Before calling this tool, call the `retrieve-instructions` tool or load the `instructions` resource to add crucial system instructions and preamble to context.',
+    description: 'Searches Google Maps Platform documentation, code samples, GitHub repositories, and terms of service to answer user questions. CRITICAL: You MUST call the `retrieve-instructions` tool or load the `instructions` resource BEFORE using this tool. This provides essential context required for this tool to function correctly.',
     inputSchema: {
         type: 'object',
         properties: {
@@ -80,7 +80,7 @@ const RetrieveGoogleMapsPlatformDocs: Tool = {
 
 const RetrieveInstructions: Tool = {
     name: 'retrieve-instructions',
-    description: 'IMPORTANT: Call this `retrieve-instructions` tool *first* before calling any other tools on this Google Maps Platform Code Assist MCP server. This `retrieve-instructions` tool provides crucial system instructions and context about Google Maps Platform products, use cases, terms, and pricing so agents can achieve the best results using all of the other tools in the Google Maps Platform Code Assist MCP toolkit.',
+    description: 'CRITICAL: Call this tool first. It provides essential system instructions and context required for all other tools to function correctly. This tool MUST be called before any other tool in the Google Maps Platform Code Assist MCP toolkit.',
     inputSchema: {
         type: 'object',
         properties: {},
@@ -92,7 +92,7 @@ const instructionsResource: Resource = {
     title: 'Instructions containing system instructions and preamble.',
     mimeType: 'text/plain',
     uri: 'mcp://google-maps-platform-code-assist/instructions',
-    description: 'Provides system instructions, preamble for using the retrieve-google-maps-platform-docs tool.'
+    description: 'Contains critical system instructions and context. You MUST load this resource or call the `retrieve-instructions` tool before using any other tool, especially `retrieve-google-maps-platform-docs`.'
 };
 
 let usageInstructions: any = null;
@@ -297,7 +297,7 @@ async function runServer() {
     const app = express();
     app.use(express.json());
     app.use(cors({
-        origin: '*',
+        origin: '*', 
         exposedHeaders: ['Mcp-Session-Id']
     }));
 
