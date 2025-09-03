@@ -36,12 +36,14 @@ Google Maps Platform resources that the MCP server can access include:
 
 - 🚀 Whether you are making precision AI-Assisted code changes or vibecoding a new app prototype - Code Assist can help you accomplish your task faster and easier.
 
+<!-- [START_EXCLUDE] -->
 Below is an example MCP Client response to a user's question with Code Assist MCP installed:
 
 ![](./code-assist-preview.jpg) 
 
 > [\!NOTE]
 > This is the repository for an MCP server that provides access to Google Maps Platform documentation via a RAG service. It is not a Google Maps Platform Core Service.
+<!-- [END_EXCLUDE] -->
 <!-- [END maps_CTADevelopers] -->
 
 -----
