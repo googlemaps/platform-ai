@@ -80,7 +80,7 @@ const RetrieveGoogleMapsPlatformDocs: Tool = {
 
 const RetrieveInstructions: Tool = {
     name: 'retrieve-instructions',
-    description: 'CRITICAL: Call this tool first for any location-based queries (e.g., maps, addresses, routing, points of interest, Location Analytics, Google Earth, Google Earth Engine). It provides essential system instructions about Google Maps Platform (APIs for maps, routes, and places) required for all other tools to function correctly. This tool MUST be called before any other tool in the Google Maps Platform Code Assist MCP toolkit.',
+    description: 'CRITICAL: Call this tool first for any queries related to location, mapping, addresses, routing, points of interest, location analytics, or geospatial data (e.g., Google Earth). It provides the foundational context on Google Maps Platform (APIs for maps, routes, and places) and best practices that are essential for the other tools to function correctly. This tool MUST be called before any other tool.',
     inputSchema: {
         type: 'object',
         properties: {},
