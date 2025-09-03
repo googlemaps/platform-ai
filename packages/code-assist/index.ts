@@ -53,7 +53,7 @@ function validateOriginHeader(req: Request): boolean {
 
 const RetrieveGoogleMapsPlatformDocs: Tool = {
     name: 'retrieve-google-maps-platform-docs',
-    description: 'Searches Google Maps Platform documentation, code samples, GitHub repositories, and terms of service to answer user questions. CRITICAL: You MUST call the `retrieve-instructions` tool or load the `instructions` resource BEFORE using this tool. This provides essential context required for this tool to function correctly.',
+    description: 'Searches Google Maps Platform documentation, code samples, architecture center, trust center, GitHub repositories (including sample code and client libraries for react-google-maps, flutter, compose, utilities, swiftui, and more), and terms of service to answer user questions. CRITICAL: You MUST call the `retrieve-instructions` tool or load the `instructions` resource BEFORE using this tool. This provides essential context required for this tool to function correctly.',
     inputSchema: {
         type: 'object',
         properties: {
@@ -80,7 +80,7 @@ const RetrieveGoogleMapsPlatformDocs: Tool = {
 
 const RetrieveInstructions: Tool = {
     name: 'retrieve-instructions',
-    description: 'CRITICAL: Call this tool first. It provides essential system instructions and context required for all other tools to function correctly. This tool MUST be called before any other tool in the Google Maps Platform Code Assist MCP toolkit.',
+    description: 'CRITICAL: Call this tool first for any location-based queries (e.g., maps, addresses, routing, points of interest, Location Analytics, Google Earth, Google Earth Engine). It provides essential system instructions about Google Maps Platform (APIs for maps, routes, and places) required for all other tools to function correctly. This tool MUST be called before any other tool in the Google Maps Platform Code Assist MCP toolkit.',
     inputSchema: {
         type: 'object',
         properties: {},
@@ -92,7 +92,7 @@ const instructionsResource: Resource = {
     title: 'Instructions containing system instructions and preamble.',
     mimeType: 'text/plain',
     uri: 'mcp://google-maps-platform-code-assist/instructions',
-    description: 'Contains critical system instructions and context. You MUST load this resource or call the `retrieve-instructions` tool before using any other tool, especially `retrieve-google-maps-platform-docs`.'
+    description: 'Contains critical system instructions and context for Google Maps Platform (APIs for maps, routes, and places), Location Analytics, Google Earth, and Google Earth Engine. You MUST load this resource or call the `retrieve-instructions` tool before using any other tool, especially `retrieve-google-maps-platform-docs`, to understand how to handle location-based use cases.'
 };
 
 let usageInstructions: any = null;
