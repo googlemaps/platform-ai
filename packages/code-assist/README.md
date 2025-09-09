@@ -444,6 +444,43 @@ This server implementation includes a standard `/health` endpoint. This is a bes
 
 -----
 
+<!-- [START maps_Developer] -->
+
+## 🛠️ Developer: Manual Release Process
+
+> **Note:** Normally releases are automated via GitHub Actions, but due to a current workflow bug, manual releases are required. Follow these steps:
+
+**Manual Release Steps:**
+
+**1. Bump Version Numbers**
+Update version in all required files:
+- `packages/code-assist/package.json`
+- `packages/code-assist/server.json`
+- `.release-please-manifest.json` (project root)
+
+**2. Create Changelog Entry**
+Update `packages/code-assist/CHANGELOG.md` with new version details.
+
+**3. Build and Publish to NPM**
+```bash
+cd packages/code-assist
+npm run build:prepare
+npm login
+npm publish
+```
+
+**4. Publish to MCP Registry**
+```bash
+npx @modelcontextprotocol/mcp-publisher login github
+npx @modelcontextprotocol/mcp-publisher publish
+```
+
+The MCP Registry validates that the NPM package is live and the `mcpName` field in `package.json` matches the server name before allowing publication.
+
+<!-- [END maps_Developer] -->
+
+-----
+
 <!-- [START maps_Terms] -->
 
 ## **Terms of Service**
