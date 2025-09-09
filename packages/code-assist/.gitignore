@@ -35,3 +35,6 @@ coverage/
 *.tmp
 .temp/
 tmp/
+
+# MCP Registry local authentication tokens
+.mcpregistry_*
