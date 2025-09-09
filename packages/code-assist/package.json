@@ -1,7 +1,7 @@
 {
   "name": "@googlemaps/code-assist-mcp",
   "version": "0.2.0",
-  "mcpName": "io.github.ryanbaumann/platform-ai",
+  "mcpName": "io.github.googlemaps/code-assist-mcp",
   "main": "dist/index.js",
   "type": "module",
   "bin": {
