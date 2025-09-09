@@ -1,5 +1,6 @@
 {
   "name": "@googlemaps/code-assist-mcp",
+  "mcpName": "io.github.googlemaps/code-assist-mcp",
   "version": "0.1.7",
   "main": "dist/index.js",
   "type": "module",

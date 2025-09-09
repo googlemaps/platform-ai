@@ -1,0 +1,22 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-07-09/server.schema.json",
+  "name": "io.github.googlemaps/code-assist-mcp",
+  "description": "Google Maps Platform Code Assist MCP (Model Context Protocol) service",
+  "status": "active",
+  "repository": {
+    "url": "https://github.com/googlemaps/platform-ai",
+    "source": "github"
+  },
+  "version": "1.0.0",
+  "packages": [
+    {
+      "registry_type": "npm",
+      "registry_base_url": "https://registry.npmjs.org",
+      "identifier": "@googlemaps/code-assist-mcp",
+      "version": "1.0.0",
+      "transport": {
+        "type": "stdio"
+      }
+    }
+  ]
+}
