@@ -1,0 +1,17 @@
+{
+  "name": "google-maps-platform-gemini-cli-extension",
+  "version": "0.1.0",
+  "context": [
+    "GEMINI.md"
+  ],
+  "mcpServers": {
+    "google-maps-platform-code-assist": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@googlemaps/code-assist-mcp@latest"
+      ]
+    }
+  },
+  "theme": "gmp-theme.json"
+}
