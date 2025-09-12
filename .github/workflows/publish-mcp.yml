@@ -46,7 +46,7 @@ jobs:
           node-version: 22
       
       - name: Setup Go (for MCP Publisher)
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@v6
         with:
           go-version: '1.24'
       
