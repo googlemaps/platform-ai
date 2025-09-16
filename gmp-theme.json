@@ -1,0 +1,30 @@
+{
+  "unfocused": {
+    "border": "white"
+  },
+  "focused": {
+    "border": "green"
+  },
+  "prompt": {
+    "text": "white"
+  },
+  "title": {
+    "text": "yellow"
+  },
+  "suggestions": {
+    "text": "white",
+    "background": "blue"
+  },
+  "completer": {
+    "text": "white",
+    "background": "blue"
+  },
+  "chat": {
+    "user": {
+      "text": "white"
+    },
+    "model": {
+      "text": "white"
+    }
+  }
+}
