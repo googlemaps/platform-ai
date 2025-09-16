@@ -62,3 +62,12 @@ jobs:
         env:
           # The NODE_AUTH_TOKEN is used to authenticate against the Wombat Dressing Room registry.
           NODE_AUTH_TOKEN: ${{ secrets.NPM_WOMBOT_TOKEN }}
+
+  # Publish to MCP Registry after successful NPM publishing
+  publish-mcp:
+    needs: publish
+    if: ${{ needs.publish.result == 'success' }}
+    uses: ./.github/workflows/publish-mcp.yml
+    with:
+      package_published: true
+    secrets: inherit

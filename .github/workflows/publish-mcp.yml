@@ -1,0 +1,132 @@
+# Copyright 2025 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Workflow to publish MCP server to the official MCP Registry
+name: Publish MCP Server
+
+on:
+  workflow_call:
+    inputs:
+      package_published:
+        description: 'Whether the NPM package was successfully published'
+        required: true
+        type: boolean
+  workflow_dispatch: # manual trigger for testing
+
+concurrency:
+  group: mcp-publishing
+  cancel-in-progress: true
+
+jobs:
+  publish-mcp:
+    runs-on: ubuntu-latest
+    if: ${{ inputs.package_published }}
+    permissions:
+      id-token: write  # Required for GitHub OIDC authentication
+      contents: read
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      
+      - name: Setup Go (for MCP Publisher)
+        uses: actions/setup-go@v6
+        with:
+          go-version: '1.24'
+      
+      - name: Install and Build MCP Publisher
+        run: |
+          git clone --depth 1 https://github.com/modelcontextprotocol/registry mcp-registry
+          cd mcp-registry
+          make publisher
+          cp cmd/publisher/bin/mcp-publisher ../mcp-publisher
+          cd ..
+          chmod +x mcp-publisher
+          rm -rf mcp-registry
+      
+      - name: Validate server.json
+        working-directory: packages/code-assist
+        run: |
+          # Basic validation that server.json exists and has required fields
+          if [ ! -f "server.json" ]; then
+            echo "❌ server.json not found"
+            exit 1
+          fi
+          
+          # Check for required fields using jq
+          if ! command -v jq &> /dev/null; then
+            sudo apt-get update && sudo apt-get install -y jq
+          fi
+          
+          name=$(jq -r '.name // empty' server.json)
+          if [ -z "$name" ]; then
+            echo "❌ server.json missing 'name' field"
+            exit 1
+          fi
+          
+          echo "✅ server.json validation passed"
+          echo "📦 Publishing MCP server: $name"
+      
+      - name: Login to MCP Registry (GitHub OIDC)
+        working-directory: packages/code-assist
+        run: |
+          echo "🔐 Authenticating with MCP Registry using GitHub OIDC..."
+          ../mcp-publisher login github-oidc
+      
+      - name: Publish to MCP Registry
+        working-directory: packages/code-assist
+        run: |
+          echo "🚀 Publishing to MCP Registry..."
+          ../mcp-publisher publish
+      
+      - name: Verify Publication
+        working-directory: packages/code-assist
+        run: |
+          # Extract server name from server.json for verification
+          server_name=$(jq -r '.name' server.json)
+          registry_url="https://registry.modelcontextprotocol.io/servers/${server_name}"
+          
+          echo "📡 Verifying publication at: $registry_url"
+          
+          # Wait a moment for registry to update
+          sleep 10
+          
+          # Check if server appears in registry
+          if curl -f -s "$registry_url" > /dev/null; then
+            echo "✅ MCP server successfully published and verified!"
+            echo "🌐 Available at: $registry_url"
+          else
+            echo "⚠️  Publication completed but verification failed. This may be due to registry propagation delays."
+            echo "🔍 Manual verification recommended at: $registry_url"
+          fi
+      
+      - name: Notify on Success
+        if: success()
+        run: |
+          server_name=$(jq -r '.name' packages/code-assist/server.json)
+          echo "✅ MCP Server '$server_name' published successfully to the MCP Registry!"
+      
+      - name: Notify on Failure
+        if: failure()
+        run: |
+          echo "❌ MCP Server publishing failed. Check the logs above for details."
+          echo "💡 Common issues:"
+          echo "   - Package not yet available on NPM (try again in a few minutes)"
+          echo "   - server.json validation errors"
+          echo "   - Authentication issues"
