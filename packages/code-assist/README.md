@@ -110,7 +110,7 @@ Add the server to your preferred AI client's MCP configuration file. Find your c
 2. **[Claude Code](https://docs.anthropic.com/en/docs/claude-code/mcp)**
     * Option 1 - Add the server directly from your command line (assuming you have Claude Code already installed):
         ```bash
-            claude mcp add google-maps-platform-code-assist -- npx -y @googlemaps/code-assist@latest
+            claude mcp add google-maps-platform-code-assist -- npx -y @googlemaps/code-assist-mcp@latest
         ```
         * Verify the installation by running `claude mcp list`.
         * **Windows Users:** On native Windows (not WSL), you must use the `cmd /c` wrapper for `npx` commands to work correctly.
@@ -123,7 +123,7 @@ Add the server to your preferred AI client's MCP configuration file. Find your c
         "google-maps-platform-code-assist": {
           "command": "npx",
           "args": [
-            "-y", "@googlemaps/code-assist-mc@latest"
+            "-y", "@googlemaps/code-assist-mcp@latest"
           ]
         }
       }
