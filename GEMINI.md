@@ -23,7 +23,7 @@ Use the MCP tools immediately when queries involve:
 - Location analytics or geospatial data
 - Any Google Maps Platform product or service
 - Geographic coordinates, addresses, or points of interest
-- Use cases like data visualization, store locator, routing, logistics, delivery, mobillity
+- Use cases like data visualization, store locator, routing, logistics, delivery, mobility
 
 **Core Principle: Self-Evaluation & Validation**
 After using tools to gather information:
