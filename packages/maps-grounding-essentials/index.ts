@@ -21,19 +21,24 @@ import { GoogleMapsPlatformWeatherLookup, handleGoogleMapsPlatformWeatherLookup 
 import { GoogleMapsPlatformPlacesSearchText, handleGoogleMapsPlatformPlacesSearchText } from './places-search-text.js';
 import { GoogleMapsPlatformComputeRoutes, handleGoogleMapsPlatformComputeRoutes } from './routes-compute.js';
 
-const server = new Server(
-    {
-        name: "google-maps-platform-maps-tools",
-        version: "0.0.1",
-    },
-    {
-        capabilities: {
-            tools: {},
-            logging: {},
-            resources: {}
+
+export function getServer(): Server {
+    return new Server(
+        {
+            name: "google-maps-platform-maps-tools",
+            version: "0.0.1",
         },
-    }
-);
+        {
+            capabilities: {
+                tools: {},
+                logging: {},
+                resources: {}
+            },
+        }
+    );
+}
+
+const server = getServer();
 
 // Set up request handlers
 server.setRequestHandler(ListToolsRequestSchema, async () => ({
@@ -71,5 +76,3 @@ runServer().catch((error) => {
     console.error("Fatal error running server:", error);
     process.exit(1);
 });
-
-console.log('MCP server started');

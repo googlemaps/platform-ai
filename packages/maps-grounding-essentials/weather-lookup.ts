@@ -37,7 +37,7 @@ export const GoogleMapsPlatformWeatherLookup: Tool = {
         * **Hourly Forecasts:** Requires a location and an **hour** (0-23). Use if the user asks for weather at a specific time or using terms like "next few hours," or "later today." 
         * **Daily Forecasts:** Requires a location and a full date. 
         
-        Date Handling (CRITICAL): User-provided dates MUST be broken down into separate integer parameters: year, month, and day. The required format for these parameters is: {"year": <int>, "month": <int>, "day": <int>}.
+        Date Handling (CRITICAL): User-provided dates and hours MUST be provided in the local timezone of the requested location. Dates MUST be broken down into separate integer parameters: year, month, and day. The required format for these parameters is: {"year": <int>, "month": <int>, "day": <int>}.
         `, 
         inputSchema: {
         "type": "object",

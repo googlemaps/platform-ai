@@ -16,7 +16,7 @@
     "build:prepare": "bun clean && bun build index.ts --outdir dist --target=node --format=cjs --minify && { echo '#!/usr/bin/env node'; cat dist/index.js; } > dist/index.js.tmp && mv dist/index.js.tmp dist/index.js && shx chmod +x dist/index.js && echo '{\"type\": \"commonjs\"}' > dist/package.json && cp README.md dist",
     "start": "node dist/index.js",
     "prepack": "npm run build:prepare",
-    "test:integration": "bun test tests/integration.test.ts"
+    "test:integration": "GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY} bun test tests/integration.test.ts"
   },
   "keywords": [],
   "author": "",
