@@ -65,7 +65,10 @@ Add the server to your preferred AI client's MCP configuration file. Find your c
       "mcpServers": {
         "google-maps-platform-maps-tool": {
           "command": "npx",
-          "args": ["-y", "@googlemaps/maps-grounding-essentials-mcp@latest"]
+          "args": ["-y", "@googlemaps/maps-grounding-essentials-mcp@latest"],
+          "env": {
+            "GOOGLE_MAPS_API_KEY": "YOUR_API_KEY"
+          }
         }
       }
     }
@@ -88,7 +91,10 @@ Add the server to your preferred AI client's MCP configuration file. Find your c
           "command": "npx",
           "args": [
             "-y", "@googlemaps/maps-grounding-essentials-mcp@latest"
-          ]
+          ],
+          "env": {
+            "GOOGLE_MAPS_API_KEY": "YOUR_API_KEY"
+          }
         }
       }
     ```
@@ -101,7 +107,10 @@ Add the server to your preferred AI client's MCP configuration file. Find your c
       "mcpServers": {
         "google-maps-platform-maps-tool": {
           "command": "npx",
-          "args": ["-y", "@googlemaps/maps-grounding-essentials-mcp@latest"]
+          "args": ["-y", "@googlemaps/maps-grounding-essentials-mcp@latest"],
+          "env": {
+            "GOOGLE_MAPS_API_KEY": "YOUR_API_KEY"
+          }
         }
       }
     }
@@ -115,7 +124,10 @@ Add the server to your preferred AI client's MCP configuration file. Find your c
       "mcpServers": {
         "google-maps-platform-maps-tool": {
           "command": "npx",
-          "args": ["-y", "@googlemaps/maps-grounding-essentials-mcp@latest"]
+          "args": ["-y", "@googlemaps/maps-grounding-essentials-mcp@latest"],
+          "env": {
+            "GOOGLE_MAPS_API_KEY": "YOUR_API_KEY"
+          }
         }
       }
     }
@@ -128,7 +140,10 @@ Add the server to your preferred AI client's MCP configuration file. Find your c
       "mcpServers": {
         "google-maps-platform-maps-tool": {
           "command": "npx",
-          "args": ["-y", "@googlemaps/maps-grounding-essentials-mcp@latest"]
+          "args": ["-y", "@googlemaps/maps-grounding-essentials-mcp@latest"],
+          "env": {
+            "GOOGLE_MAPS_API_KEY": "YOUR_API_KEY"
+          }
         }
       }
     }
@@ -145,13 +160,16 @@ Add the server to your preferred AI client's MCP configuration file. Find your c
               "mcpServers": {
                 "google-maps-platform-maps-tool": {
                   "command": "npx",
-                  "args": ["-y", "@googlemaps/maps-grounding-essentials-mcp@latest"]
-                },
-                "alwaysAllow": [
-                  "GoogleMapsPlatformWeatherLookup",
-                  "GoogleMapsPlatformPlacesSearchText",
-                  "GoogleMapsPlatformComputeRoutes"
-                ]
+                  "args": ["-y", "@googlemaps/maps-grounding-essentials-mcp@latest"],
+                  "env": {
+                    "GOOGLE_MAPS_API_KEY": "YOUR_API_KEY"
+                  },
+                  "alwaysAllow": [
+                    "GoogleMapsPlatformWeatherLookup",
+                    "GoogleMapsPlatformPlacesSearchText",
+                    "GoogleMapsPlatformComputeRoutes"
+                    ]
+                }
               }
             }
             ```
@@ -167,13 +185,16 @@ Add the server to your preferred AI client's MCP configuration file. Find your c
               "mcpServers": {
                 "google-maps-platform-maps-tool": {
                   "command": "npx",
-                  "args": ["-y", "@googlemaps/maps-grounding-essentials-mcp@latest"]
-                },
-                "alwaysAllow": [
-                  "GoogleMapsPlatformWeatherLookup",
-                  "GoogleMapsPlatformPlacesSearchText",
-                  "GoogleMapsPlatformComputeRoutes"
-                ]
+                  "args": ["-y", "@googlemaps/maps-grounding-essentials-mcp@latest"],
+                  "env": {
+                    "GOOGLE_MAPS_API_KEY": "YOUR_API_KEY"
+                  },
+                  "alwaysAllow": [
+                    "GoogleMapsPlatformWeatherLookup",
+                    "GoogleMapsPlatformPlacesSearchText",
+                    "GoogleMapsPlatformComputeRoutes"
+                    ]
+                }
               }
             }
             ```
