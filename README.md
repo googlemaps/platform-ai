@@ -14,7 +14,7 @@ For more information about installing and using the toolkit, as well as terms of
 
 Use these example prompts to get started with the Code Assist MCP server or supported AI agents:
 
-- Show me how to use the Directions API in Node.js.
+- Show me how to use the Routes API in Node.js.
 - What are the authentication options for Google Maps Platform?
 - Give me a code sample for displaying a map with markers.
 - Explain the difference between Place Autocomplete and Place Search.
