@@ -1,9 +1,7 @@
 {
-  "name": "google-maps-platform-gemini-cli-extension",
+  "name": "google-maps-platform",
   "version": "0.1.0",
-  "context": [
-    "GEMINI.md"
-  ],
+  "contextFileName": "GEMINI.md",
   "mcpServers": {
     "google-maps-platform-code-assist": {
       "command": "npx",
