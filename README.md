@@ -10,5 +10,15 @@ This repository contains the Google Maps Platform Code Assist toolkit, a Model C
 
 For more information about installing and using the toolkit, as well as terms of use, see the [Code Assist toolkit README](packages/code-assist/README.md).
 
+## Sample Prompts
+
+Use these example prompts to get started with the Code Assist MCP server or supported AI agents:
+
+- Show me how to use the Routes API in Node.js.
+- What are the authentication options for Google Maps Platform?
+- Give me a code sample for displaying a map with markers.
+- Explain the difference between Place Autocomplete and Place Search.
+- How do I set up billing for Google Maps Platform?
+
 <!--repo-specific anchor links-->
 [npm-pkg]: <https://npmjs.com/package/@googlemaps/code-assist-mcp>
