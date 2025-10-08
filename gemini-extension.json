@@ -1,6 +1,7 @@
 {
   "name": "google-maps-platform",
   "version": "0.1.0",
+  "description": "Ground agents on fresh, official Google Maps Platform documentation and code samples for optimal geo-related developer guidance and code",
   "contextFileName": "GEMINI.md",
   "mcpServers": {
     "google-maps-platform-code-assist": {
