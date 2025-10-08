@@ -6,7 +6,7 @@
 
 ## **Description**
 
-This repository contains the Google Maps Platform Code Assist toolkit, a Model Context Protocol (MCP) server that enhances the responses from large language models (LLMs) used for developing applications with the Google Maps Platform by grounding them in the official, up-to-date documentation and code samples.
+This repository contains the [Google Maps Platform Code Assist toolkit](packages/code-assist/README.md), a Model Context Protocol (MCP) server that enhances the responses from large language models (LLMs) used for developing applications with the Google Maps Platform by grounding them in the official, up-to-date documentation and code samples.
 
 ## Install the Google Maps Platform Code Assist extension for [Gemini CLI](https://geminicli.com/)
 
