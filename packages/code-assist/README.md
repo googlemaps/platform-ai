@@ -30,11 +30,11 @@ Google Maps Platform resources that the MCP server can access include:
 <!-- [END maps_Description] -->
 
 <!-- [START maps_CTADevelopers] -->
-## Developers
+## Benefits
 
-- 🪄 Make your favorite AI assistant or IDE a Google Maps Platform expert. With Code Assist, AI Agents like Gemini CLI, Claude Code, and Cursor can generate code and answer developer questions grounded in up-to-date, official Google Maps Platform documentation and code samples -- directly in your dev workflow.
+- Make your favorite AI assistant or IDE a Google Maps Platform expert. With Code Assist, AI Agents like Gemini CLI, Claude Code, and Cursor can generate code and answer developer questions grounded in up-to-date, official Google Maps Platform documentation and code samples -- directly in your dev workflow.
 
-- 🚀 Whether you are making precision AI-Assisted code changes or vibecoding a new app prototype - Code Assist can help you accomplish your task faster and easier.
+- Whether you are making precision AI-Assisted code changes or vibecoding a new app prototype - Code Assist can help you accomplish your task faster and easier.
 
 <!-- [START_EXCLUDE] -->
 Below is an example MCP Client response to a user's question with Code Assist MCP installed:
@@ -49,7 +49,7 @@ Below is an example MCP Client response to a user's question with Code Assist MC
 -----
 
 <!-- [START maps_Tools] -->
-## 🔧 Tools Provided
+## Tools Provided
 
 The MCP server exposes the following tools for AI clients:
 
@@ -61,7 +61,7 @@ The MCP server exposes the following tools for AI clients:
 
 <!-- [START maps_Transports] -->
 
-## 🛠️ Supported MCP Transports
+## Supported MCP Transports
 
 This server supports two standard MCP communication protocols:
 
@@ -73,7 +73,7 @@ This server supports two standard MCP communication protocols:
 -----
 
 <!-- [START maps_LocalSetup] -->
-## 🚀 Usage
+## Usage
 
 You can run the Code Assist MCP server either on your local development machine or remotely on Google Cloud Run.
 
@@ -238,7 +238,7 @@ Add the server to your preferred AI client's MCP configuration file. Find your c
 
 <!-- [START maps_Settings] -->
 
-## ⚙️ Available Settings
+## Available Settings
 
 ### Port Configuration
 
@@ -275,7 +275,7 @@ If the specified port is unavailable, the server will automatically find and sta
 
 <!-- [START maps_StreamableHTTP_Guide] -->
 
-## 🌐 Local Streamable HTTP Guide
+## Local Streamable HTTP Guide
 
 For developers who need to integrate the Google Maps Platform Code Assist MCP server using the [Streamable HTTP](https://modelcontextprotocol.io/specification/2025-03-26/basic/transports#streamable-http) transport on their local machine, this guide provides setup instructions and testing steps.
 
