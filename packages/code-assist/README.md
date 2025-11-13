@@ -95,7 +95,7 @@ Add the server to your preferred AI client's MCP configuration file. Find your c
          gemini mcp add google-maps-platform-code-assist npx -y @googlemaps/code-assist-mcp@latest
         ```
       * Verify the installation by running `gemini mcp list`.
-    * Option 2 - Install Code Assist as a Gemini CLI extension with static preamble, the MCP tool, and basic Google Maps theme:
+    * Option 2 - Install Code Assist MCP server as a Gemini CLI extension:
         ```bash
         gemini extensions install https://github.com/googlemaps/platform-ai.git
         ```
