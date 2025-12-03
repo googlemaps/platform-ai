@@ -17,167 +17,178 @@
 import { expect, test, describe, mock, beforeEach, spyOn, afterEach } from "bun:test";
 import axios from "axios";
 import { getUsageInstructions, getServer, handleCallTool, _setUsageInstructions, handleReadResource, startHttpServer } from "../index.js";
+import { SOURCE } from "../config.js";
 import { CallToolRequest, ReadResourceRequest } from "@modelcontextprotocol/sdk/types.js";
 import express, { Request, Response } from 'express';
 import http from 'http';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 
 mock.module("axios", () => ({
-  default: {
-    get: mock(),
-    post: mock(),
-  },
+    default: {
+        get: mock(),
+        post: mock(),
+    },
 }));
 
 const server = getServer();
-spyOn(server, "sendLoggingMessage").mockImplementation(async () => {});
+spyOn(server, "sendLoggingMessage").mockImplementation(async () => { });
 
 describe("Google Maps Platform Code Assist MCP Server", () => {
-  beforeEach(() => {
-    _setUsageInstructions(null);
-  });
-  test("getUsageInstructions returns instructions", async () => {
-    const mockResponse = {
-      data: {
-        systemInstructions: "system instructions",
-        preamble: "preamble",
-        europeanEconomicAreaTermsDisclaimer: "disclaimer",
-      },
-    };
-    (axios.get as any).mockResolvedValue(mockResponse);
+    beforeEach(() => {
+        _setUsageInstructions(null);
+    });
+    test("getUsageInstructions returns instructions", async () => {
+        const mockResponse = {
+            data: {
+                systemInstructions: "system instructions",
+                preamble: "preamble",
+                europeanEconomicAreaTermsDisclaimer: "disclaimer",
+            },
+        };
+        (axios.get as any).mockResolvedValue(mockResponse);
 
-    const instructions = await getUsageInstructions(server);
+        const instructions = await getUsageInstructions(server);
 
-    expect(instructions).toEqual([
-      "system instructions",
-      "preamble",
-      "disclaimer",
-    ]);
-  });
+        expect(instructions).toEqual([
+            "system instructions",
+            "preamble",
+            "disclaimer",
+        ]);
 
-  test("retrieve-google-maps-platform-docs tool calls RAG service", async () => {
-    const mockResponse = {
-      data: {
-        contexts: [],
-      },
-      status: 200,
-    };
-    (axios.post as any).mockResolvedValue(mockResponse);
+        expect(axios.get).toHaveBeenCalledWith(
+            expect.stringContaining("/instructions"),
+            expect.objectContaining({
+                params: {
+                    source: SOURCE
+                }
+            })
+        );
+    });
 
-    const request = {
-      method: "tools/call" as const,
-      params: {
-        name: "retrieve-google-maps-platform-docs",
-        arguments: {
-          prompt: "How do I add Places New to my mobile app?",
-        },
-      },
-    };
+    test("retrieve-google-maps-platform-docs tool calls RAG service", async () => {
+        const mockResponse = {
+            data: {
+                contexts: [],
+            },
+            status: 200,
+        };
+        (axios.post as any).mockResolvedValue(mockResponse);
 
-    await handleCallTool(request as CallToolRequest, server);
+        const request = {
+            method: "tools/call" as const,
+            params: {
+                name: "retrieve-google-maps-platform-docs",
+                arguments: {
+                    prompt: "How do I add Places New to my mobile app?",
+                },
+            },
+        };
 
-    expect(axios.post).toHaveBeenCalledWith(
-      expect.stringContaining("/chat"),
-      expect.objectContaining({
-        message: "How do I add Places New to my mobile app?",
-      })
-    );
-  });
-  test("getUsageInstructions returns null on error", async () => {
-    (axios.get as any).mockRejectedValue(new Error("Network error"));
+        await handleCallTool(request as CallToolRequest, server);
 
-    const instructions = await getUsageInstructions(server);
+        expect(axios.post).toHaveBeenCalledWith(
+            expect.stringContaining("/chat"),
+            expect.objectContaining({
+                message: "How do I add Places New to my mobile app?",
+                source: SOURCE
+            })
+        );
+    });
+    test("getUsageInstructions returns null on error", async () => {
+        (axios.get as any).mockRejectedValue(new Error("Network error"));
 
-    expect(instructions).toBeNull();
-  });
+        const instructions = await getUsageInstructions(server);
 
-  test("retrieve-instructions tool returns instructions", async () => {
-    const mockResponse = {
-      data: {
-        systemInstructions: "system instructions",
-        preamble: "preamble",
-        europeanEconomicAreaTermsDisclaimer: "disclaimer",
-      },
-    };
-    (axios.get as any).mockResolvedValue(mockResponse);
+        expect(instructions).toBeNull();
+    });
 
-    const request = {
-      method: "tools/call" as const,
-      params: {
-        name: "retrieve-instructions",
-      },
-    };
+    test("retrieve-instructions tool returns instructions", async () => {
+        const mockResponse = {
+            data: {
+                systemInstructions: "system instructions",
+                preamble: "preamble",
+                europeanEconomicAreaTermsDisclaimer: "disclaimer",
+            },
+        };
+        (axios.get as any).mockResolvedValue(mockResponse);
 
-    const result = await handleCallTool(request as CallToolRequest, server);
+        const request = {
+            method: "tools/call" as const,
+            params: {
+                name: "retrieve-instructions",
+            },
+        };
 
-    expect(result.content?.[0].text).toContain("system instructions");
-  });
+        const result = await handleCallTool(request as CallToolRequest, server);
 
-  test("read instructions resource returns instructions", async () => {
-    const mockResponse = {
-      data: {
-        systemInstructions: "system instructions",
-        preamble: "preamble",
-        europeanEconomicAreaTermsDisclaimer: "disclaimer",
-      },
-    };
-    (axios.get as any).mockResolvedValue(mockResponse);
+        expect(result.content?.[0].text).toContain("system instructions");
+    });
 
-    const request = {
-      method: "resources/read" as const,
-      params: {
-        uri: "mcp://google-maps-platform-code-assist/instructions",
-      },
-    };
+    test("read instructions resource returns instructions", async () => {
+        const mockResponse = {
+            data: {
+                systemInstructions: "system instructions",
+                preamble: "preamble",
+                europeanEconomicAreaTermsDisclaimer: "disclaimer",
+            },
+        };
+        (axios.get as any).mockResolvedValue(mockResponse);
 
-    const result = await handleReadResource(request as ReadResourceRequest, server);
+        const request = {
+            method: "resources/read" as const,
+            params: {
+                uri: "mcp://google-maps-platform-code-assist/instructions",
+            },
+        };
 
-    expect(result.contents?.[0].text).toContain("system instructions");
-  });
+        const result = await handleReadResource(request as ReadResourceRequest, server);
 
-  test("read invalid resource returns error", async () => {
-    const request = {
-      method: "resources/read" as const,
-      params: {
-        uri: "mcp://google-maps-platform-code-assist/invalid",
-      },
-    };
+        expect(result.contents?.[0].text).toContain("system instructions");
+    });
 
-    const result = await handleReadResource(request as ReadResourceRequest, server);
+    test("read invalid resource returns error", async () => {
+        const request = {
+            method: "resources/read" as const,
+            params: {
+                uri: "mcp://google-maps-platform-code-assist/invalid",
+            },
+        };
 
-    expect(result.contents?.[0].text).toBe("Invalid Resource URI");
-  });
+        const result = await handleReadResource(request as ReadResourceRequest, server);
 
-  test("retrieve-google-maps-platform-docs tool returns error on failure", async () => {
-    (axios.post as any).mockRejectedValue(new Error("RAG error"));
+        expect(result.contents?.[0].text).toBe("Invalid Resource URI");
+    });
 
-    const request = {
-      method: "tools/call" as const,
-      params: {
-        name: "retrieve-google-maps-platform-docs",
-        arguments: {
-          prompt: "test prompt",
-        },
-      },
-    };
+    test("retrieve-google-maps-platform-docs tool returns error on failure", async () => {
+        (axios.post as any).mockRejectedValue(new Error("RAG error"));
 
-    const result = await handleCallTool(request as CallToolRequest, server);
+        const request = {
+            method: "tools/call" as const,
+            params: {
+                name: "retrieve-google-maps-platform-docs",
+                arguments: {
+                    prompt: "test prompt",
+                },
+            },
+        };
 
-    expect(result.content?.[0].text).toContain("No information available");
-  });
+        const result = await handleCallTool(request as CallToolRequest, server);
 
-  test("invalid tool call returns error", async () => {
-    const request = {
-      method: "tools/call" as const,
-      params: {
-        name: "invalid-tool",
-      },
-    };
+        expect(result.content?.[0].text).toContain("No information available");
+    });
 
-    const result = await handleCallTool(request as CallToolRequest, server);
+    test("invalid tool call returns error", async () => {
+        const request = {
+            method: "tools/call" as const,
+            params: {
+                name: "invalid-tool",
+            },
+        };
 
-    expect(result.content?.[0].text).toBe("Invalid Tool called");
-  });
+        const result = await handleCallTool(request as CallToolRequest, server);
+
+        expect(result.content?.[0].text).toBe("Invalid Tool called");
+    });
 });
 
 describe("startHttpServer", () => {
@@ -220,45 +231,45 @@ describe("startHttpServer", () => {
 
 // Advanced MCP Streamable HTTP Compliance Tests
 describe("Advanced MCP Streamable HTTP Compliance", () => {
-    
+
     describe("Feature 4: Origin Header Validation", () => {
         test("allows requests without Origin header (server-to-server)", () => {
             // Mock request without Origin header
             const mockReq: { headers: Record<string, string | undefined> } = { headers: {} };
-            
+
             // Test validation logic (simulating validateOriginHeader function)
             const origin = mockReq.headers.origin;
             const isValid = !origin ? true : false; // Allow requests without Origin header
-            
+
             expect(isValid).toBe(true);
         });
-        
+
         test("allows localhost origins in development", () => {
             const originalNodeEnv = process.env.NODE_ENV;
             process.env.NODE_ENV = 'development';
-            
+
             const mockReq: { headers: Record<string, string> } = { headers: { origin: 'http://localhost:3000' } };
-            
+
             // Test validation logic
             const origin = mockReq.headers.origin;
             const isValid = !origin ? true :
                 (process.env.NODE_ENV !== 'production' ?
                     origin.startsWith('http://localhost') || origin.startsWith('https://localhost') : false);
-            
+
             expect(isValid).toBe(true);
-            
+
             process.env.NODE_ENV = originalNodeEnv;
         });
-        
+
         test("rejects invalid origins in production", () => {
             const originalNodeEnv = process.env.NODE_ENV;
             const originalAllowedOrigins = process.env.ALLOWED_ORIGINS;
-            
+
             process.env.NODE_ENV = 'production';
             process.env.ALLOWED_ORIGINS = 'https://example.com,https://app.example.com';
-            
+
             const mockReq: { headers: Record<string, string> } = { headers: { origin: 'https://malicious.com' } };
-            
+
             // Test validation logic
             const origin = mockReq.headers.origin;
             const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [];
@@ -266,22 +277,22 @@ describe("Advanced MCP Streamable HTTP Compliance", () => {
                 (process.env.NODE_ENV !== 'production' ?
                     origin.startsWith('http://localhost') || origin.startsWith('https://localhost') :
                     allowedOrigins.includes(origin));
-            
+
             expect(isValid).toBe(false);
-            
+
             process.env.NODE_ENV = originalNodeEnv;
             process.env.ALLOWED_ORIGINS = originalAllowedOrigins;
         });
-        
+
         test("allows valid origins in production", () => {
             const originalNodeEnv = process.env.NODE_ENV;
             const originalAllowedOrigins = process.env.ALLOWED_ORIGINS;
-            
+
             process.env.NODE_ENV = 'production';
             process.env.ALLOWED_ORIGINS = 'https://example.com,https://app.example.com';
-            
+
             const mockReq: { headers: Record<string, string> } = { headers: { origin: 'https://example.com' } };
-            
+
             // Test validation logic
             const origin = mockReq.headers.origin;
             const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [];
@@ -289,25 +300,25 @@ describe("Advanced MCP Streamable HTTP Compliance", () => {
                 (process.env.NODE_ENV !== 'production' ?
                     origin.startsWith('http://localhost') || origin.startsWith('https://localhost') :
                     allowedOrigins.includes(origin));
-            
+
             expect(isValid).toBe(true);
-            
+
             process.env.NODE_ENV = originalNodeEnv;
             process.env.ALLOWED_ORIGINS = originalAllowedOrigins;
         });
     });
-    
+
     describe("Feature 5: Proper HTTP Status Codes", () => {
         test("validates 406 status for invalid Accept header", () => {
             const mockReq = { headers: { accept: 'application/json' } };
-            
+
             // Test Accept header validation logic
             const acceptHeader = mockReq.headers.accept;
             const acceptedTypes = acceptHeader.split(',').map(type => type.trim().split(';')[0]);
             const isValid = acceptedTypes.includes('application/json') && acceptedTypes.includes('text/event-stream');
-            
+
             expect(isValid).toBe(false);
-            
+
             // Validate error response structure
             const errorResponse = {
                 jsonrpc: '2.0',
@@ -318,26 +329,26 @@ describe("Advanced MCP Streamable HTTP Compliance", () => {
                 },
                 id: null,
             };
-            
+
             expect(errorResponse.error.data.code).toBe('INVALID_ACCEPT_HEADER');
         });
-        
+
         test("validates 403 status for invalid Origin header", () => {
             const originalNodeEnv = process.env.NODE_ENV;
             const originalAllowedOrigins = process.env.ALLOWED_ORIGINS;
-            
+
             process.env.NODE_ENV = 'production';
             process.env.ALLOWED_ORIGINS = 'https://example.com';
-            
+
             const mockReq = { headers: { origin: 'https://malicious.com' } };
-            
+
             // Test Origin validation logic
             const origin = mockReq.headers.origin;
             const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [];
             const isValid = allowedOrigins.includes(origin);
-            
+
             expect(isValid).toBe(false);
-            
+
             // Validate error response structure
             const errorResponse = {
                 jsonrpc: '2.0',
@@ -348,20 +359,20 @@ describe("Advanced MCP Streamable HTTP Compliance", () => {
                 },
                 id: null,
             };
-            
+
             expect(errorResponse.error.data.code).toBe('INVALID_ORIGIN');
-            
+
             process.env.NODE_ENV = originalNodeEnv;
             process.env.ALLOWED_ORIGINS = originalAllowedOrigins;
         });
-        
+
         test("validates 404 status for session not found", () => {
             const mockSessionMap: Record<string, any> = {};
             const sessionId = 'invalid-session-id';
-            
+
             const sessionExists = !!(sessionId && mockSessionMap[sessionId]);
             expect(sessionExists).toBe(false);
-            
+
             // Validate error response structure
             const errorResponse = {
                 jsonrpc: '2.0',
@@ -372,35 +383,35 @@ describe("Advanced MCP Streamable HTTP Compliance", () => {
                 },
                 id: null,
             };
-            
+
             expect(errorResponse.error.data.code).toBe('SESSION_NOT_FOUND');
         });
     });
-    
+
     describe("Feature 6: Resumability Support (Last-Event-ID)", () => {
         test("handles Last-Event-ID header processing", () => {
             const mockReq: { headers: Record<string, string> } = { headers: { 'last-event-id': 'event-123' } };
-            
+
             const lastEventId = mockReq.headers['last-event-id'];
             expect(lastEventId).toBe('event-123');
-            
+
             // Verify logging would occur (in real implementation)
             const wouldLog = lastEventId !== undefined;
             expect(wouldLog).toBe(true);
         });
-        
+
         test("handles missing Last-Event-ID header gracefully", () => {
             const mockReq: { headers: Record<string, string | undefined> } = { headers: {} };
-            
+
             const lastEventId = mockReq.headers['last-event-id'];
             expect(lastEventId).toBeUndefined();
-            
+
             // Should not cause errors when missing
             const wouldLog = lastEventId !== undefined;
             expect(wouldLog).toBe(false);
         });
     });
-    
+
     describe("Enhanced Error Response Structure", () => {
         test("validates structured error codes are included", () => {
             const testCases = [
@@ -441,7 +452,7 @@ describe("Advanced MCP Streamable HTTP Compliance", () => {
                     }
                 }
             ];
-            
+
             testCases.forEach(testCase => {
                 expect(testCase.errorResponse.error).toBeDefined();
                 expect(testCase.errorResponse.error.data).toBeDefined();
@@ -493,8 +504,8 @@ describe("StreamableHTTP Transport", () => {
         mockReq = createMockRequest();
         mockRes = createMockResponse();
 
-        consoleSpy = spyOn(console, 'log').mockImplementation(() => {});
-        spyOn(console, 'error').mockImplementation(() => {});
+        consoleSpy = spyOn(console, 'log').mockImplementation(() => { });
+        spyOn(console, 'error').mockImplementation(() => { });
     });
 
     afterEach(() => {
@@ -505,10 +516,10 @@ describe("StreamableHTTP Transport", () => {
         test("validates session creation logic", () => {
             const sessionId = 'test-session-123';
             const mockTransportMap: Record<string, any> = {};
-            
+
             // Simulate session creation
             mockTransportMap[sessionId] = mockTransport;
-            
+
             expect(Object.keys(mockTransportMap).length).toBe(1);
             expect(mockTransportMap[sessionId]).toBe(mockTransport);
         });
@@ -517,10 +528,10 @@ describe("StreamableHTTP Transport", () => {
             const sessionId = 'existing-session-456';
             const existingTransport = { ...mockTransport, sessionId };
             const mockTransportMap: Record<string, any> = {};
-            
+
             // Pre-populate with existing session
             mockTransportMap[sessionId] = existingTransport;
-            
+
             mockReq = createMockRequest({
                 headers: { 'mcp-session-id': sessionId },
                 body: { jsonrpc: '2.0', method: 'tools/list', id: 2 }
@@ -534,12 +545,12 @@ describe("StreamableHTTP Transport", () => {
             const sessionId = 'cleanup-session-789';
             const mockTransportMap: Record<string, any> = {};
             mockTransport.sessionId = sessionId;
-            
+
             mockTransportMap[sessionId] = mockTransport;
-            
+
             // Simulate cleanup
             delete mockTransportMap[sessionId];
-            
+
             expect(mockTransportMap[sessionId]).toBeUndefined();
             expect(Object.keys(mockTransportMap).length).toBe(0);
         });
@@ -606,8 +617,8 @@ describe("StreamableHTTP Transport", () => {
 
             // Test fallback logic without mocking external function
             const isInitRequest = mockReq.body?.method === 'initialize' ||
-                                 (mockReq.body?.jsonrpc === '2.0' && mockReq.body?.method === 'initialize');
-            
+                (mockReq.body?.jsonrpc === '2.0' && mockReq.body?.method === 'initialize');
+
             expect(isInitRequest).toBe(true);
         });
     });
@@ -650,7 +661,7 @@ describe("StreamableHTTP Transport", () => {
             mockRes.status(400).json(errorResponse);
 
             expect(mockRes.status).toHaveBeenCalledWith(400);
-            
+
             // Validate that no session should be created for invalid requests
             const mockTransportMap: Record<string, any> = {};
             expect(Object.keys(mockTransportMap).length).toBe(0);
@@ -682,7 +693,7 @@ describe("StreamableHTTP Transport", () => {
             const session1 = { ...mockTransport, sessionId: 'session-1', close: mock() };
             const session2 = { ...mockTransport, sessionId: 'session-2', close: mock() };
             const session3 = { ...mockTransport, sessionId: 'session-3', close: mock() };
-            
+
             const mockTransportMap: Record<string, any> = {
                 'session-1': session1,
                 'session-2': session2,
@@ -703,7 +714,7 @@ describe("StreamableHTTP Transport", () => {
             expect(Object.keys(mockTransportMap).length).toBe(0);
         });
     });
-    
+
     // MCP Streamable HTTP Compliance Tests
     describe("MCP Streamable HTTP Compliance", () => {
         // Mock factories for Express Request/Response objects
@@ -713,7 +724,7 @@ describe("StreamableHTTP Transport", () => {
             body: {},
             ...overrides
         });
-    
+
         const createMockResponse = (): any => {
             const res = {
                 status: mock(() => res),
@@ -723,57 +734,57 @@ describe("StreamableHTTP Transport", () => {
             };
             return res;
         };
-    
+
         describe("Accept Header Validation", () => {
             test("accepts request with valid Accept header", () => {
                 const req = createMockRequest({
                     headers: { 'accept': 'application/json, text/event-stream' }
                 });
-                
+
                 // Import and test the validation function logic
                 const acceptHeader = req.headers!.accept as string;
                 const acceptedTypes = acceptHeader.split(',').map(type => type.trim().split(';')[0]);
                 const isValid = acceptedTypes.includes('application/json') && acceptedTypes.includes('text/event-stream');
-                
+
                 expect(isValid).toBe(true);
             });
-    
+
             test("rejects request without Accept header", () => {
                 const req = createMockRequest({ headers: {} });
-                
+
                 const acceptHeader = req.headers!.accept as string;
                 const isValid = acceptHeader ?
                     (acceptHeader.split(',').map(type => type.trim().split(';')[0]).includes('application/json') &&
-                     acceptHeader.split(',').map(type => type.trim().split(';')[0]).includes('text/event-stream')) : false;
-                
+                        acceptHeader.split(',').map(type => type.trim().split(';')[0]).includes('text/event-stream')) : false;
+
                 expect(isValid).toBe(false);
             });
-    
+
             test("rejects request missing application/json", () => {
                 const req = createMockRequest({
                     headers: { 'accept': 'text/event-stream' }
                 });
-                
+
                 const acceptHeader = req.headers!.accept as string;
                 const acceptedTypes = acceptHeader.split(',').map(type => type.trim().split(';')[0]);
                 const isValid = acceptedTypes.includes('application/json') && acceptedTypes.includes('text/event-stream');
-                
+
                 expect(isValid).toBe(false);
             });
-    
+
             test("rejects request missing text/event-stream", () => {
                 const req = createMockRequest({
                     headers: { 'accept': 'application/json' }
                 });
-                
+
                 const acceptHeader = req.headers!.accept as string;
                 const acceptedTypes = acceptHeader.split(',').map(type => type.trim().split(';')[0]);
                 const isValid = acceptedTypes.includes('application/json') && acceptedTypes.includes('text/event-stream');
-                
+
                 expect(isValid).toBe(false);
             });
         });
-    
+
         describe("GET Endpoint SSE Streams", () => {
             test("validates GET request Accept header for SSE", () => {
                 const mockReq = createMockRequest({
@@ -783,32 +794,32 @@ describe("StreamableHTTP Transport", () => {
                         'mcp-session-id': 'valid-session-123'
                     }
                 });
-    
+
                 const acceptHeader = mockReq.headers!.accept as string;
                 const sessionId = mockReq.headers!['mcp-session-id'] as string;
-                
+
                 expect(acceptHeader).toContain('text/event-stream');
                 expect(sessionId).toBe('valid-session-123');
             });
-    
+
             test("validates error response for GET without session ID", () => {
                 const mockReq = createMockRequest({
                     method: 'GET',
                     headers: { 'accept': 'text/event-stream' }
                 });
                 const mockRes = createMockResponse();
-    
+
                 const sessionId = mockReq.headers!['mcp-session-id'] as string | undefined;
-                
+
                 if (!sessionId) {
                     const errorResponse = {
                         jsonrpc: '2.0',
                         error: { code: -32000, message: 'Bad Request: Valid session ID required for GET requests' },
                         id: null,
                     };
-    
+
                     mockRes.status(400).json(errorResponse);
-    
+
                     expect(mockRes.status).toHaveBeenCalledWith(400);
                     expect(mockRes.json).toHaveBeenCalledWith(
                         expect.objectContaining({
@@ -821,7 +832,7 @@ describe("StreamableHTTP Transport", () => {
                     );
                 }
             });
-    
+
             test("validates error response for GET without text/event-stream", () => {
                 const mockReq = createMockRequest({
                     method: 'GET',
@@ -831,18 +842,18 @@ describe("StreamableHTTP Transport", () => {
                     }
                 });
                 const mockRes = createMockResponse();
-    
+
                 const acceptHeader = mockReq.headers!.accept as string;
-                
+
                 if (!acceptHeader || !acceptHeader.includes('text/event-stream')) {
                     const errorResponse = {
                         jsonrpc: '2.0',
                         error: { code: -32000, message: 'Bad Request: Accept header must include text/event-stream for GET requests' },
                         id: null,
                     };
-    
+
                     mockRes.status(400).json(errorResponse);
-    
+
                     expect(mockRes.status).toHaveBeenCalledWith(400);
                     expect(mockRes.json).toHaveBeenCalledWith(
                         expect.objectContaining({
@@ -856,7 +867,7 @@ describe("StreamableHTTP Transport", () => {
                 }
             });
         });
-    
+
         describe("DELETE Endpoint Session Termination", () => {
             test("validates DELETE request with valid session ID", () => {
                 const sessionId = 'test-session-delete';
@@ -866,34 +877,34 @@ describe("StreamableHTTP Transport", () => {
                     handleRequest: mock().mockResolvedValue(undefined)
                 };
                 const mockTransportMap: Record<string, any> = { [sessionId]: mockTransport };
-                
+
                 const mockReq = createMockRequest({
                     method: 'DELETE',
                     headers: { 'mcp-session-id': sessionId }
                 });
-    
+
                 expect(mockTransportMap[sessionId]).toBe(mockTransport);
                 expect(mockTransport.sessionId).toBe(sessionId);
             });
-    
+
             test("validates error response for DELETE without session ID", () => {
                 const mockReq = createMockRequest({
                     method: 'DELETE',
                     headers: {}
                 });
                 const mockRes = createMockResponse();
-    
+
                 const sessionId = mockReq.headers!['mcp-session-id'] as string | undefined;
-                
+
                 if (!sessionId) {
                     const errorResponse = {
                         jsonrpc: '2.0',
                         error: { code: -32000, message: 'Bad Request: Valid session ID required for DELETE requests' },
                         id: null,
                     };
-    
+
                     mockRes.status(400).json(errorResponse);
-    
+
                     expect(mockRes.status).toHaveBeenCalledWith(400);
                     expect(mockRes.json).toHaveBeenCalledWith(
                         expect.objectContaining({
@@ -906,7 +917,7 @@ describe("StreamableHTTP Transport", () => {
                     );
                 }
             });
-    
+
             test("validates error response for DELETE with invalid session ID", () => {
                 const mockReq = createMockRequest({
                     method: 'DELETE',
@@ -914,18 +925,18 @@ describe("StreamableHTTP Transport", () => {
                 });
                 const mockRes = createMockResponse();
                 const mockTransportMap: Record<string, any> = {};
-    
+
                 const sessionId = mockReq.headers!['mcp-session-id'] as string;
-                
+
                 if (!mockTransportMap[sessionId]) {
                     const errorResponse = {
                         jsonrpc: '2.0',
                         error: { code: -32000, message: 'Bad Request: Valid session ID required for DELETE requests' },
                         id: null,
                     };
-    
+
                     mockRes.status(400).json(errorResponse);
-    
+
                     expect(mockRes.status).toHaveBeenCalledWith(400);
                     expect(mockRes.json).toHaveBeenCalledWith(
                         expect.objectContaining({
@@ -938,7 +949,7 @@ describe("StreamableHTTP Transport", () => {
                     );
                 }
             });
-    
+
             test("validates transport cleanup during session termination", async () => {
                 const sessionId = 'cleanup-session';
                 const mockTransport = {
@@ -947,17 +958,17 @@ describe("StreamableHTTP Transport", () => {
                     handleRequest: mock().mockResolvedValue(undefined)
                 };
                 const mockTransportMap: Record<string, any> = { [sessionId]: mockTransport };
-    
+
                 // Simulate the cleanup process
                 await mockTransport.handleRequest();
                 await mockTransport.close();
                 delete mockTransportMap[sessionId];
-    
+
                 expect(mockTransport.handleRequest).toHaveBeenCalled();
                 expect(mockTransport.close).toHaveBeenCalled();
                 expect(mockTransportMap[sessionId]).toBeUndefined();
             });
-    
+
             test("handles transport close errors gracefully", async () => {
                 const sessionId = 'error-session';
                 const mockTransport = {
@@ -966,26 +977,26 @@ describe("StreamableHTTP Transport", () => {
                     handleRequest: mock().mockResolvedValue(undefined)
                 };
                 const mockTransportMap: Record<string, any> = { [sessionId]: mockTransport };
-    
+
                 // Simulate error handling during cleanup
                 await mockTransport.handleRequest();
-                
+
                 try {
                     await mockTransport.close();
                 } catch (closeError) {
                     // Error should be caught and logged, but cleanup should continue
                     expect(closeError).toBeInstanceOf(Error);
                 }
-                
+
                 // Transport should still be removed from map despite close error
                 delete mockTransportMap[sessionId];
-    
+
                 expect(mockTransport.handleRequest).toHaveBeenCalled();
                 expect(mockTransport.close).toHaveBeenCalled();
                 expect(mockTransportMap[sessionId]).toBeUndefined();
             });
         });
-    
+
         describe("POST Endpoint Validation", () => {
             test("validates POST request with proper Accept header", () => {
                 const mockReq = createMockRequest({
@@ -993,15 +1004,15 @@ describe("StreamableHTTP Transport", () => {
                     headers: { 'accept': 'application/json, text/event-stream' },
                     body: { jsonrpc: '2.0', method: 'initialize', id: 1 }
                 });
-    
+
                 const acceptHeader = mockReq.headers!.accept as string;
                 const acceptedTypes = acceptHeader.split(',').map(type => type.trim().split(';')[0]);
                 const isValid = acceptedTypes.includes('application/json') && acceptedTypes.includes('text/event-stream');
-                
+
                 expect(isValid).toBe(true);
                 expect(mockReq.body.method).toBe('initialize');
             });
-    
+
             test("validates error response for POST with invalid Accept header", () => {
                 const mockReq = createMockRequest({
                     method: 'POST',
@@ -1009,11 +1020,11 @@ describe("StreamableHTTP Transport", () => {
                     body: { jsonrpc: '2.0', method: 'initialize', id: 1 }
                 });
                 const mockRes = createMockResponse();
-    
+
                 const acceptHeader = mockReq.headers!.accept as string;
                 const acceptedTypes = acceptHeader.split(',').map(type => type.trim().split(';')[0]);
                 const isValid = acceptedTypes.includes('application/json') && acceptedTypes.includes('text/event-stream');
-                
+
                 if (!isValid) {
                     const errorResponse = {
                         jsonrpc: '2.0',
@@ -1023,9 +1034,9 @@ describe("StreamableHTTP Transport", () => {
                         },
                         id: null,
                     };
-    
+
                     mockRes.status(400).json(errorResponse);
-    
+
                     expect(mockRes.status).toHaveBeenCalledWith(400);
                     expect(mockRes.json).toHaveBeenCalledWith(
                         expect.objectContaining({
