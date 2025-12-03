@@ -16,4 +16,6 @@
 
 export const ragEndpoint = "https://rag-230009110455.us-central1.run.app"
 
+export const SOURCE = process.env.SOURCE || 'github';
+
 export const DEFAULT_CONTEXTS = ["Google Maps Platform"];
