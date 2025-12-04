@@ -22,33 +22,33 @@ import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import { Tool, CallToolRequest, CallToolRequestSchema, ListToolsRequestSchema, Resource, ListResourcesRequestSchema, ReadResourceRequest, ReadResourceRequestSchema, isInitializeRequest } from '@modelcontextprotocol/sdk/types.js';
-import { ragEndpoint, DEFAULT_CONTEXTS } from './config.js';
+import { ragEndpoint, DEFAULT_CONTEXTS, SOURCE } from './config.js';
 import axios from 'axios';
 
 // MCP Streamable HTTP compliance: Accept header validation
 function validateAcceptHeader(req: Request): boolean {
-  const acceptHeader = req.headers.accept;
-  if (!acceptHeader) return false;
-  
-  const acceptedTypes = acceptHeader.split(',').map(type => type.trim().split(';')[0]);
-  return acceptedTypes.includes('application/json') && acceptedTypes.includes('text/event-stream');
+    const acceptHeader = req.headers.accept;
+    if (!acceptHeader) return false;
+
+    const acceptedTypes = acceptHeader.split(',').map(type => type.trim().split(';')[0]);
+    return acceptedTypes.includes('application/json') && acceptedTypes.includes('text/event-stream');
 }
 
 // Feature 4: Origin header validation for DNS rebinding protection
 function validateOriginHeader(req: Request): boolean {
-  const origin = req.headers.origin;
-  
-  // Allow requests without Origin header (server-to-server)
-  if (!origin) return true;
-  
-  // For development, allow localhost origins
-  if (process.env.NODE_ENV !== 'production') {
-    return origin.startsWith('http://localhost') || origin.startsWith('https://localhost');
-  }
-  
-  // In production, validate against allowed origins
-  const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [];
-  return allowedOrigins.includes(origin);
+    const origin = req.headers.origin;
+
+    // Allow requests without Origin header (server-to-server)
+    if (!origin) return true;
+
+    // For development, allow localhost origins
+    if (process.env.NODE_ENV !== 'production') {
+        return origin.startsWith('http://localhost') || origin.startsWith('https://localhost');
+    }
+
+    // In production, validate against allowed origins
+    const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [];
+    return allowedOrigins.includes(origin);
 }
 
 const RetrieveGoogleMapsPlatformDocs: Tool = {
@@ -109,7 +109,11 @@ export async function getUsageInstructions(server: Server) {
         return usageInstructions;
     }
     try {
-        const ragResponse = await axios.get(ragEndpoint.concat("/instructions"));
+        const ragResponse = await axios.get(ragEndpoint.concat("/instructions"), {
+            params: {
+                source: SOURCE
+            }
+        });
 
         usageInstructions = [
             ragResponse.data.systemInstructions,
@@ -223,7 +227,8 @@ export async function handleCallTool(request: CallToolRequest, server: Server) {
                 // Call the RAG service:
                 const ragResponse = await axios.post(ragEndpoint.concat("/chat"), {
                     message: prompt,
-                    contexts: contexts
+                    contexts: contexts,
+                    source: SOURCE
                 });
 
                 let mcpResponse = {

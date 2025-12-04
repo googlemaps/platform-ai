@@ -269,6 +269,24 @@ Or with an environment variable:
 
 If the specified port is unavailable, the server will automatically find and start on a random available port.
 
+### Source Configuration
+
+You can specify a `SOURCE` environment variable to track the origin of the requests. The default value is `github`.
+
+**Example: Set source to `my_company_name`**
+
+In your `mcp.json`:
+
+```json
+"google-maps-platform-code-assist": {
+  "command": "npx",
+  "args": ["-y", "@googlemaps/code-assist-mcp@latest"],
+  "env": {
+    "SOURCE": "my_company_name"
+  }
+}
+```
+
 <!-- [END maps_Settings] -->
 
 -----
