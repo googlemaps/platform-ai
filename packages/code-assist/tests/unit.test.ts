@@ -41,7 +41,6 @@ describe("Google Maps Platform Code Assist MCP Server", () => {
         const mockResponse = {
             data: {
                 systemInstructions: "system instructions",
-                preamble: "preamble",
                 europeanEconomicAreaTermsDisclaimer: "disclaimer",
             },
         };
@@ -51,7 +50,6 @@ describe("Google Maps Platform Code Assist MCP Server", () => {
 
         expect(instructions).toEqual([
             "system instructions",
-            "preamble",
             "disclaimer",
         ]);
 
@@ -106,7 +104,6 @@ describe("Google Maps Platform Code Assist MCP Server", () => {
         const mockResponse = {
             data: {
                 systemInstructions: "system instructions",
-                preamble: "preamble",
                 europeanEconomicAreaTermsDisclaimer: "disclaimer",
             },
         };
@@ -128,7 +125,6 @@ describe("Google Maps Platform Code Assist MCP Server", () => {
         const mockResponse = {
             data: {
                 systemInstructions: "system instructions",
-                preamble: "preamble",
                 europeanEconomicAreaTermsDisclaimer: "disclaimer",
             },
         };
