@@ -117,7 +117,6 @@ export async function getUsageInstructions(server: Server) {
 
         usageInstructions = [
             ragResponse.data.systemInstructions,
-            ragResponse.data.preamble,
             ragResponse.data.europeanEconomicAreaTermsDisclaimer
         ];
 
