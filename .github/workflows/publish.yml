@@ -68,6 +68,9 @@ jobs:
     needs: publish
     if: ${{ needs.publish.result == 'success' }}
     uses: ./.github/workflows/publish-mcp.yml
+    permissions:
+      id-token: write
+      contents: read
     with:
       package_published: true
     secrets: inherit
