@@ -3,8 +3,12 @@
   "version": "0.2.1",
   "repository": {
     "type": "git",
-    "url": "https://github.com/googlemaps/platform-ai.git",
+    "url": "https://github.com/googlemaps/platform-ai",
     "directory": "packages/code-assist"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://wombat-dressing-room.appspot.com"
   },
   "mcpName": "io.github.googlemaps/code-assist-mcp",
   "main": "dist/index.js",
