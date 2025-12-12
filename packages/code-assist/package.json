@@ -3,7 +3,7 @@
   "version": "0.2.1",
   "repository": {
     "type": "git",
-    "url": "https://github.com/googlemaps/platform-ai",
+    "url": "git+https://github.com/googlemaps/platform-ai.git",
     "directory": "packages/code-assist"
   },
   "publishConfig": {
