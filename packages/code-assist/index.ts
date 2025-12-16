@@ -41,6 +41,50 @@ import {
 import { ragEndpoint, DEFAULT_CONTEXTS, SOURCE } from './config.js';
 import axios from 'axios';
 
+// Cache for products list
+let cachedProducts: string[] = [...DEFAULT_CONTEXTS];
+let productsFetched = false;
+
+// Function to fetch and parse products from instructions
+async function fetchProductsFromInstructions() {
+    if (productsFetched) return;
+
+    try {
+        const response = await axios.get(ragEndpoint.concat("/instructions"), {
+            params: { source: SOURCE }
+        });
+
+        const systemInstructions = response.data?.systemInstructions;
+        if (!systemInstructions) return;
+
+        // Extract content between <product_overview> tags
+        const match = systemInstructions.match(/<product_overview>([\s\S]*?)<\/product_overview>/);
+        if (!match) return;
+
+        const content = match[1];
+        // Regex to find product names in format: * **Product Name**
+        const productRegex = /\*\s+\*\*([^*]+)\*\*/g;
+        const newProducts: string[] = [];
+
+        let productMatch;
+        while ((productMatch = productRegex.exec(content)) !== null) {
+            if (productMatch[1]) {
+                newProducts.push(productMatch[1].trim());
+            }
+        }
+
+        if (newProducts.length > 0) {
+            // Merge with default contexts, removing duplicates
+            const uniqueProducts = new Set([...cachedProducts, ...newProducts]);
+            cachedProducts = Array.from(uniqueProducts);
+            productsFetched = true;
+            console.log(`Fetched ${newProducts.length} products from instructions.`);
+        }
+    } catch (error) {
+        console.error("Failed to fetch products from instructions:", error);
+    }
+}
+
 // MCP Streamable HTTP compliance: Accept header validation
 function validateAcceptHeader(req: Request): boolean {
     const acceptHeader = req.headers.accept;
@@ -230,9 +274,14 @@ export async function handleCompletion(request: CompleteRequest, server: Server)
         request.params.ref.name === "retrieve-google-maps-platform-docs" &&
         request.params.argument.name === "search_context") {
 
+        // Try to refresh products if not yet fetched (background)
+        if (!productsFetched) {
+            fetchProductsFromInstructions().catch(e => console.error(e));
+        }
+
         const currentInput = request.params.argument.value.toLowerCase();
-        // Filter DEFAULT_CONTEXTS based on input
-        const matches = DEFAULT_CONTEXTS.filter(ctx => ctx.toLowerCase().includes(currentInput));
+        // Filter cachedProducts based on input
+        const matches = cachedProducts.filter(ctx => ctx.toLowerCase().includes(currentInput));
 
         return {
             completion: {
@@ -303,8 +352,9 @@ export async function handleCallTool(request: CallToolRequest, server: Server) {
             let prompt: string = request.params.arguments?.prompt as string;
             let searchContext: string[] = request.params.arguments?.search_context as string[];
 
-            // Merge searchContext with DEFAULT_CONTEXTS and remove duplicates
-            const mergedContexts = new Set([...DEFAULT_CONTEXTS, ...(searchContext || [])]);
+            // Merge searchContext with cachedProducts and remove duplicates.
+            // Note: We use the cached product list here as the base context, not just the static DEFAULT_CONTEXTS.
+            const mergedContexts = new Set([...cachedProducts, ...(searchContext || [])]);
             const contexts = Array.from(mergedContexts);
 
             // Log user request for debugging purposes
