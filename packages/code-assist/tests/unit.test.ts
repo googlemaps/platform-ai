@@ -16,9 +16,9 @@
 
 import { expect, test, describe, mock, beforeEach, spyOn, afterEach } from "bun:test";
 import axios from "axios";
-import { getUsageInstructions, getServer, handleCallTool, _setUsageInstructions, handleReadResource, startHttpServer } from "../index.js";
-import { SOURCE } from "../config.js";
-import { CallToolRequest, ReadResourceRequest } from "@modelcontextprotocol/sdk/types.js";
+import { getUsageInstructions, getServer, handleCallTool, _setUsageInstructions, handleReadResource, startHttpServer, handleGetPrompt, handleCompletion } from "../index.js";
+import { SOURCE, DEFAULT_CONTEXTS } from "../config.js";
+import { CallToolRequest, ReadResourceRequest, GetPromptRequest, CompleteRequest } from "@modelcontextprotocol/sdk/types.js";
 import express, { Request, Response } from 'express';
 import http from 'http';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
@@ -188,6 +188,119 @@ describe("Google Maps Platform Code Assist MCP Server", () => {
         const result = await handleCallTool(request as CallToolRequest, server);
 
         expect(result.content?.[0].text).toBe("Invalid Tool called");
+    });
+});
+
+describe("Google Maps Platform Code Assist MCP Server - Prompts & Completion", () => {
+    beforeEach(() => {
+        _setUsageInstructions(null);
+    });
+
+    test("code-assist prompt returns instructions", async () => {
+        const mockResponse = {
+            data: {
+                systemInstructions: "system instructions",
+                preamble: "preamble",
+                europeanEconomicAreaTermsDisclaimer: "disclaimer",
+            },
+        };
+        (axios.get as any).mockResolvedValue(mockResponse);
+
+        const request = {
+            method: "prompts/get" as const,
+            params: {
+                name: "code-assist",
+                arguments: {
+                    task: "Explain Geocoding"
+                }
+            },
+        };
+
+        const result = await handleGetPrompt(request as GetPromptRequest, server);
+
+        expect(result.messages[0].content.type).toBe("text");
+        expect((result.messages[0].content as any).text).toContain("system instructions");
+        expect((result.messages[0].content as any).text).toContain("Task: Explain Geocoding");
+    });
+
+    test("code-assist prompt throws error if instructions fail", async () => {
+        (axios.get as any).mockResolvedValue(null);
+        // Force getUsageInstructions to return null by mocking axios failure/null response properly or ensuring it fails
+        (axios.get as any).mockRejectedValue(new Error("Network Error"));
+
+        const request = {
+            method: "prompts/get" as const,
+            params: {
+                name: "code-assist",
+            },
+        };
+
+        // Expect getUsageInstructions to return null, then handleGetPrompt to throw
+        try {
+            await handleGetPrompt(request as GetPromptRequest, server);
+            expect(true).toBe(false); // Should not reach here
+        } catch (e: any) {
+            expect(e.message).toContain("Could not retrieve instructions for prompt");
+        }
+    });
+
+    test("invalid prompt returns error", async () => {
+        const request = {
+            method: "prompts/get" as const,
+            params: {
+                name: "invalid-prompt",
+            },
+        };
+
+        try {
+            await handleGetPrompt(request as GetPromptRequest, server);
+            expect(true).toBe(false); // Should not reach here
+        } catch (e: any) {
+            expect(e.message).toContain("Prompt not found");
+        }
+    });
+
+    test("completion for retrieve-google-maps-platform-docs search_context", async () => {
+        const request = {
+            method: "completion/complete" as const,
+            params: {
+                ref: {
+                    type: "ref/tool" as const,
+                    name: "retrieve-google-maps-platform-docs",
+                },
+                argument: {
+                    name: "search_context",
+                    value: "Maps" // Should match "Google Maps Platform"
+                }
+            },
+        };
+        // Mock DEFAULT_CONTEXTS indirectly since we import it, but it's hard to mock constants.
+        // We will assume DEFAULT_CONTEXTS contains standard Google Maps strings.
+
+        const result = await handleCompletion(request as CompleteRequest, server);
+
+        expect(result.completion.values.length).toBeGreaterThan(0);
+        expect(result.completion.values.some(v => v.includes("Maps"))).toBe(true);
+    });
+
+    test("completion returns empty for unknown tool/arg", async () => {
+        const request = {
+            method: "completion/complete" as const,
+            params: {
+                ref: {
+                    type: "ref/tool" as const,
+                    name: "unknown-tool",
+                },
+                argument: {
+                    name: "unknown-arg",
+                    value: "foo"
+                }
+            },
+        };
+
+        const result = await handleCompletion(request as CompleteRequest, server);
+
+        expect(result.completion.values.length).toBe(0);
     });
 });
 

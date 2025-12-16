@@ -21,7 +21,23 @@ import { randomUUID } from "node:crypto";
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
-import { Tool, CallToolRequest, CallToolRequestSchema, ListToolsRequestSchema, Resource, ListResourcesRequestSchema, ReadResourceRequest, ReadResourceRequestSchema, isInitializeRequest } from '@modelcontextprotocol/sdk/types.js';
+import {
+    Tool,
+    CallToolRequest,
+    CallToolRequestSchema,
+    ListToolsRequestSchema,
+    Resource,
+    ListResourcesRequestSchema,
+    ReadResourceRequest,
+    ReadResourceRequestSchema,
+    isInitializeRequest,
+    ListPromptsRequestSchema,
+    GetPromptRequestSchema,
+    GetPromptRequest,
+    CompleteRequestSchema,
+    CompleteRequest,
+    Prompt
+} from '@modelcontextprotocol/sdk/types.js';
 import { ragEndpoint, DEFAULT_CONTEXTS, SOURCE } from './config.js';
 import axios from 'axios';
 
@@ -95,6 +111,18 @@ const instructionsResource: Resource = {
     description: 'Contains critical system instructions and context for Google Maps Platform (APIs for maps, routes, and places), Location Analytics, Google Earth, and Google Earth Engine. You MUST load this resource or call the `retrieve-instructions` tool before using any other tool, especially `retrieve-google-maps-platform-docs`, to understand how to handle location-based use cases.'
 };
 
+const CodeAssistPrompt: Prompt = {
+    name: "code-assist",
+    description: "Sets up the context for Google Maps Platform coding assistance, including system instructions and best practices.",
+    arguments: [
+        {
+            name: "task",
+            description: "The specific task or question the user needs help with.",
+            required: false
+        }
+    ]
+};
+
 let usageInstructions: any = null;
 
 // Session management for StreamableHTTP transport
@@ -142,7 +170,9 @@ export const getServer = () => {
             capabilities: {
                 tools: {},
                 logging: {},
-                resources: {}
+                resources: {},
+                prompts: {},
+                completions: {} // Feature: Auto-completion
             },
         }
     );
@@ -159,8 +189,68 @@ export const getServer = () => {
     server.setRequestHandler(ReadResourceRequestSchema, (request) => handleReadResource(request, server));
     server.setRequestHandler(CallToolRequestSchema, (request) => handleCallTool(request, server));
 
+    server.setRequestHandler(ListPromptsRequestSchema, async () => ({
+        prompts: [CodeAssistPrompt]
+    }));
+
+    server.setRequestHandler(GetPromptRequestSchema, (request) => handleGetPrompt(request, server));
+
+    server.setRequestHandler(CompleteRequestSchema, (request) => handleCompletion(request, server));
+
     return server;
 };
+
+export async function handleGetPrompt(request: GetPromptRequest, server: Server) {
+    if (request.params.name === "code-assist") {
+        const instructions = await getUsageInstructions(server);
+        if (!instructions) {
+            throw new Error("Could not retrieve instructions for prompt");
+        }
+
+        const task = request.params.arguments?.task;
+        const promptText = `Please act as a Google Maps Platform expert using the following instructions:\n\n${instructions.join('\n\n')}${task ? `\n\nTask: ${task}` : ''}`;
+
+        return {
+            messages: [
+                {
+                    role: "user",
+                    content: {
+                        type: "text",
+                        text: promptText
+                    }
+                }
+            ]
+        };
+    }
+    throw new Error(`Prompt not found: ${request.params.name}`);
+}
+
+export async function handleCompletion(request: CompleteRequest, server: Server) {
+    if (request.params.ref.type === "ref/tool" &&
+        request.params.ref.name === "retrieve-google-maps-platform-docs" &&
+        request.params.argument.name === "search_context") {
+
+        const currentInput = request.params.argument.value.toLowerCase();
+        // Filter DEFAULT_CONTEXTS based on input
+        const matches = DEFAULT_CONTEXTS.filter(ctx => ctx.toLowerCase().includes(currentInput));
+
+        return {
+            completion: {
+                values: matches.slice(0, 10), // Limit to top 10 matches
+                total: matches.length,
+                hasMore: matches.length > 10
+            }
+        };
+    }
+
+    return {
+        completion: {
+            values: [],
+            total: 0,
+            hasMore: false
+        }
+    };
+}
 
 export async function handleReadResource(request: ReadResourceRequest, server: Server) {
     if (request.params.uri === instructionsResource.uri) {
@@ -328,7 +418,8 @@ async function runServer() {
 
         if (sessionId && transports.has(sessionId)) {
             transport = transports.get(sessionId)!;
-        } else if (!sessionId && isInitializeRequest(req.body)) {
+        } else if (!sessionId && (req.method === 'GET' || isInitializeRequest(req.body))) {
+            // Create a new session for GET (SSE connection) or POST (initialize request)
             transport = new StreamableHTTPServerTransport({
                 sessionIdGenerator: () => randomUUID(),
                 onsessioninitialized: (newSessionId) => {
