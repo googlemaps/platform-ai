@@ -48,7 +48,7 @@ Below is an example MCP Client response to a user's question with Code Assist MC
 
 -----
 
-<!-- [START maps_Features] -->
+<!-- [START maps_Tools] -->
 ## MCP Features Provided
 
 The MCP server exposes the following capabilities for AI clients:
@@ -63,7 +63,7 @@ The MCP server exposes the following capabilities for AI clients:
 ### Completion
   - The server provides auto-completion for the `retrieve-google-maps-platform-docs` tool arguments (specifically `search_context`), helping users discover valid Google Maps Platform products and features.
 
-<!-- [END maps_Features] -->
+<!-- [END maps_Tools] -->
 
 -----
 
