@@ -27,19 +27,19 @@
   "description": "Google Maps Platform Code Assist MCP (Model Context Protocol) service",
   "dependencies": {
     "@google-cloud/vertexai": "^1.10.0",
-    "@modelcontextprotocol/sdk": "^1.17.4",
-    "@types/node": "^22.15.18",
-    "axios": "1.12.0",
+    "@modelcontextprotocol/sdk": "^1.25.0",
+    "@types/node": "^22.10.0",
+    "axios": "^1.7.0",
     "cors": "^2.8.5",
-    "express": "^4.19.2",
-    "google-auth-library": "^9.15.1",
+    "express": "^5.2.1",
+    "google-auth-library": "^10.5.0",
     "shx": "^0.4.0",
-    "typescript": "^5.8.3"
+    "typescript": "^5.7.0"
   },
   "devDependencies": {
-    "@types/bun": "latest",
+    "@types/bun": "^1.1.0",
     "@types/cors": "^2.8.19",
-    "@types/express": "^5.0.3",
-    "bun": "1.2.18"
+    "@types/express": "^5.0.0",
+    "bun": "^1.1.0"
   }
 }
