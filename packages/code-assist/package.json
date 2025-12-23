@@ -32,7 +32,7 @@
     "axios": "^1.7.0",
     "cors": "^2.8.5",
     "express": "^5.2.1",
-    "google-auth-library": "^9.15.1",
+    "google-auth-library": "^10.5.0",
     "shx": "^0.4.0",
     "typescript": "^5.7.0"
   },

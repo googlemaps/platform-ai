@@ -49,20 +49,12 @@ Below is an example MCP Client response to a user's question with Code Assist MC
 -----
 
 <!-- [START maps_Tools] -->
-## MCP Features Provided
+## Tools Provided
 
-The MCP server exposes the following capabilities for AI clients:
+The MCP server exposes the following tools for AI clients:
 
-### Tools
   1. **`retrieve-instructions`**: A helper tool used by the client to get crucial system instructions on how to best reason about user intent and formulate effective calls to the `retrieve-google-maps-platform-docs` tool.
   2. **`retrieve-google-maps-platform-docs`**: The primary tool. It takes a natural language query and submits it to a hosted Retrieval Augmented Generation (RAG) engine. The RAG engine searches fresh versions of official Google Maps Platform documentation, tutorials, and code samples, returning relevant context to the AI to generate an accurate response.
-
-### Prompts
-  1. **`code-assist`**: A prompt template that pre-configures the AI assistant with expert instructions and best practices for Google Maps Platform development. It accepts an optional `task` argument.
-
-### Completion
-  - The server provides auto-completion for the `retrieve-google-maps-platform-docs` tool arguments (specifically `search_context`), helping users discover valid Google Maps Platform products and features.
-
 <!-- [END maps_Tools] -->
 
 -----
@@ -74,7 +66,7 @@ The MCP server exposes the following capabilities for AI clients:
 This server supports two standard MCP communication protocols:
 
   * **`stdio`**: This is the default transport used when a client invokes the server via a `command`. It communicates over the standard input/output streams, making it ideal for local command-line execution.
-  * **`Streamable HTTP`**: The server exposes a `/mcp` endpoint that accepts POST requests and SSE connections. This is used by clients that connect via a `url` and is the standard for remote server connections. Our implementation supports streaming for real-time, interactive responses.
+  * **`Streamable HTTP`**: The server exposes a `/mcp` endpoint that accepts POST requests. This is used by clients that connect via a `url` and is the standard for remote server connections. Our implementation supports streaming for real-time, interactive responses.
 
 <!-- [END maps_Transports] -->
 
@@ -391,7 +383,7 @@ curl -X POST http://localhost:3215/mcp \
 The server will respond with an SSE event containing its capabilities.
 ```
 event: message
-data: {"jsonrpc":"2.0","id":1,"result":{"protocolVersion":"2025-03-26","capabilities":{"tools":{},"logging":{},"resources":{},"prompts":{},"completions":{}},"serverInfo":{"name":"code-assist-mcp","version":"0.1.7"}}}
+data: {"jsonrpc":"2.0","id":1,"result":{"protocolVersion":"2025-03-26","capabilities":{"tools":{},"logging":{},"resources":{}},"serverInfo":{"name":"code-assist-mcp","version":"0.1.3"}}}
 ```
 
 <!-- [END maps_StreamableHTTP_Guide] -->

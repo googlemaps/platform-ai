@@ -21,69 +21,9 @@ import { randomUUID } from "node:crypto";
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
-import {
-    Tool,
-    CallToolRequest,
-    CallToolRequestSchema,
-    ListToolsRequestSchema,
-    Resource,
-    ListResourcesRequestSchema,
-    ReadResourceRequest,
-    ReadResourceRequestSchema,
-    isInitializeRequest,
-    ListPromptsRequestSchema,
-    GetPromptRequestSchema,
-    GetPromptRequest,
-    CompleteRequestSchema,
-    CompleteRequest,
-    Prompt
-} from '@modelcontextprotocol/sdk/types.js';
+import { Tool, CallToolRequest, CallToolRequestSchema, ListToolsRequestSchema, Resource, ListResourcesRequestSchema, ReadResourceRequest, ReadResourceRequestSchema, isInitializeRequest } from '@modelcontextprotocol/sdk/types.js';
 import { ragEndpoint, DEFAULT_CONTEXTS, SOURCE } from './config.js';
 import axios from 'axios';
-
-// Cache for products list
-let cachedProducts: string[] = [...DEFAULT_CONTEXTS];
-let productsFetched = false;
-
-// Function to fetch and parse products from instructions
-async function fetchProductsFromInstructions() {
-    if (productsFetched) return;
-
-    try {
-        const response = await axios.get(ragEndpoint.concat("/instructions"), {
-            params: { source: SOURCE }
-        });
-
-        const systemInstructions = response.data?.systemInstructions;
-        if (!systemInstructions) return;
-
-        // Extract content between <product_overview> tags
-        const match = systemInstructions.match(/<product_overview>([\s\S]*?)<\/product_overview>/);
-        if (!match) return;
-
-        const content = match[1];
-        // Regex to find product names in format: * **Product Name**
-        const productRegex = /\*\s+\*\*([^*]+)\*\*/g;
-        const newProducts: string[] = [];
-
-        let productMatch;
-        while ((productMatch = productRegex.exec(content)) !== null) {
-            if (productMatch[1]) {
-                newProducts.push(productMatch[1].trim());
-            }
-        }
-
-        if (newProducts.length > 0) {
-            // Merge with default contexts, removing duplicates
-            const uniqueProducts = new Set([...cachedProducts, ...newProducts]);
-            cachedProducts = Array.from(uniqueProducts);
-            productsFetched = true;
-            console.log(`Fetched ${newProducts.length} products from instructions.`);
-        }
-    } catch (error) {
-        console.error("Failed to fetch products from instructions:", error);
-    }
-}
 
 // MCP Streamable HTTP compliance: Accept header validation
 function validateAcceptHeader(req: Request): boolean {
@@ -155,18 +95,6 @@ const instructionsResource: Resource = {
     description: 'Contains critical system instructions and context for Google Maps Platform (APIs for maps, routes, and places), Location Analytics, Google Earth, and Google Earth Engine. You MUST load this resource or call the `retrieve-instructions` tool before using any other tool, especially `retrieve-google-maps-platform-docs`, to understand how to handle location-based use cases.'
 };
 
-const CodeAssistPrompt: Prompt = {
-    name: "code-assist",
-    description: "Sets up the context for Google Maps Platform coding assistance, including system instructions and best practices.",
-    arguments: [
-        {
-            name: "task",
-            description: "The specific task or question the user needs help with.",
-            required: false
-        }
-    ]
-};
-
 let usageInstructions: any = null;
 
 // Session management for StreamableHTTP transport
@@ -214,9 +142,7 @@ export const getServer = () => {
             capabilities: {
                 tools: {},
                 logging: {},
-                resources: {},
-                prompts: {},
-                completions: {} // Feature: Auto-completion
+                resources: {}
             },
         }
     );
@@ -233,73 +159,8 @@ export const getServer = () => {
     server.setRequestHandler(ReadResourceRequestSchema, (request) => handleReadResource(request, server));
     server.setRequestHandler(CallToolRequestSchema, (request) => handleCallTool(request, server));
 
-    server.setRequestHandler(ListPromptsRequestSchema, async () => ({
-        prompts: [CodeAssistPrompt]
-    }));
-
-    server.setRequestHandler(GetPromptRequestSchema, (request) => handleGetPrompt(request, server));
-
-    server.setRequestHandler(CompleteRequestSchema, (request) => handleCompletion(request, server));
-
     return server;
 };
-
-export async function handleGetPrompt(request: GetPromptRequest, server: Server) {
-    if (request.params.name === "code-assist") {
-        const instructions = await getUsageInstructions(server);
-        if (!instructions) {
-            throw new Error("Could not retrieve instructions for prompt");
-        }
-
-        const task = request.params.arguments?.task;
-        const promptText = `Please act as a Google Maps Platform expert using the following instructions:\n\n${instructions.join('\n\n')}${task ? `\n\nTask: ${task}` : ''}`;
-
-        return {
-            messages: [
-                {
-                    role: "user",
-                    content: {
-                        type: "text",
-                        text: promptText
-                    }
-                }
-            ]
-        };
-    }
-    throw new Error(`Prompt not found: ${request.params.name}`);
-}
-
-export async function handleCompletion(request: CompleteRequest, server: Server) {
-    if (request.params.ref.type === "ref/tool" &&
-        request.params.ref.name === "retrieve-google-maps-platform-docs" &&
-        request.params.argument.name === "search_context") {
-
-        // Try to refresh products if not yet fetched (background)
-        if (!productsFetched) {
-            fetchProductsFromInstructions().catch(e => console.error(e));
-        }
-
-        const currentInput = request.params.argument.value.toLowerCase();
-        // Filter cachedProducts based on input
-        const matches = cachedProducts.filter(ctx => ctx.toLowerCase().includes(currentInput));
-
-        return {
-            completion: {
-                values: matches.slice(0, 10), // Limit to top 10 matches
-                total: matches.length,
-                hasMore: matches.length > 10
-            }
-        };
-    }
-
-    return {
-        completion: {
-            values: [],
-            total: 0,
-            hasMore: false
-        }
-    };
-}
 
 export async function handleReadResource(request: ReadResourceRequest, server: Server) {
     if (request.params.uri === instructionsResource.uri) {
@@ -352,9 +213,8 @@ export async function handleCallTool(request: CallToolRequest, server: Server) {
             let prompt: string = request.params.arguments?.prompt as string;
             let searchContext: string[] = request.params.arguments?.search_context as string[];
 
-            // Merge searchContext with cachedProducts and remove duplicates.
-            // Note: We use the cached product list here as the base context, not just the static DEFAULT_CONTEXTS.
-            const mergedContexts = new Set([...cachedProducts, ...(searchContext || [])]);
+            // Merge searchContext with DEFAULT_CONTEXTS and remove duplicates
+            const mergedContexts = new Set([...DEFAULT_CONTEXTS, ...(searchContext || [])]);
             const contexts = Array.from(mergedContexts);
 
             // Log user request for debugging purposes
@@ -468,8 +328,7 @@ async function runServer() {
 
         if (sessionId && transports.has(sessionId)) {
             transport = transports.get(sessionId)!;
-        } else if (!sessionId && (req.method === 'GET' || isInitializeRequest(req.body))) {
-            // Create a new session for GET (SSE connection) or POST (initialize request)
+        } else if (!sessionId && isInitializeRequest(req.body)) {
             transport = new StreamableHTTPServerTransport({
                 sessionIdGenerator: () => randomUUID(),
                 onsessioninitialized: (newSessionId) => {
