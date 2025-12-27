@@ -23,6 +23,10 @@ concurrency:
   group: publishing
   cancel-in-progress: true
 
+permissions:
+  contents: read
+  id-token: write
+
 jobs:
   build-and-test:
     uses: ./.github/workflows/ci.yml
