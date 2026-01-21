@@ -73,23 +73,62 @@ This package includes a **Google Maps Platform Agent Skill** following the [Agen
 
 ### Skill Installation
 
-The skill is included in the `skills/` directory of this package. To install:
+The skill is included in the `skills/` directory of this package. Choose your preferred installation method:
 
-**Claude Code:**
+#### Gemini CLI (Recommended)
+
+Install directly from GitHub using the `gemini skills install` command:
+
+```bash
+# Install to user scope (~/.gemini/skills) - available across all workspaces
+gemini skills install https://github.com/googlemaps/google-maps-platform-ai.git \
+  --path packages/code-assist/skills/google-maps-platform
+
+# Or install to workspace scope (.gemini/skills) - project-specific
+gemini skills install https://github.com/googlemaps/google-maps-platform-ai.git \
+  --path packages/code-assist/skills/google-maps-platform \
+  --scope workspace
+```
+
+After installation, verify with:
+```bash
+gemini skills list
+```
+
+#### npm + Gemini CLI
+
+If you have the npm package installed, point Gemini CLI to the local skill:
+
+```bash
+# Install the npm package first
+npm install @googlemaps/code-assist-mcp
+
+# Then install the skill from node_modules
+gemini skills install ./node_modules/@googlemaps/code-assist-mcp/skills/google-maps-platform
+```
+
+#### Claude Code
+
 ```bash
 # Copy skill to Claude skills directory
 cp -r $(npm root -g)/@googlemaps/code-assist-mcp/skills/google-maps-platform ~/.claude/skills/
 ```
 
-**Cursor / Windsurf / VS Code:**
+#### Cursor / Windsurf / VS Code
+
 Add to your workspace's `.cursor/skills/` or `.windsurf/skills/` directory:
 ```bash
 cp -r node_modules/@googlemaps/code-assist-mcp/skills/google-maps-platform .cursor/skills/
 ```
 
-**Manual Installation:**
-1. Download the skill from the npm package or GitHub repository
-2. Place the `google-maps-platform/` folder in your agent's skills directory
+#### Manual Installation
+
+1. Download the skill from the [npm package](https://www.npmjs.com/package/@googlemaps/code-assist-mcp) or [GitHub repository](https://github.com/googlemaps/google-maps-platform-ai)
+2. Place the `google-maps-platform/` folder in your agent's skills directory:
+   - **Gemini CLI**: `~/.gemini/skills/` (user) or `.gemini/skills/` (workspace)
+   - **Claude Code**: `~/.claude/skills/`
+   - **Cursor**: `.cursor/skills/`
+   - **Windsurf**: `.windsurf/skills/`
 3. The skill includes:
    - `SKILL.md` - Core instructions and API selection guides
    - `references/` - Detailed code examples, decision trees, and compliance info
