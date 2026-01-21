@@ -59,6 +59,57 @@ The MCP server exposes the following tools for AI clients:
 
 -----
 
+<!-- [START maps_AgentSkill] -->
+## Agent Skill (Optional)
+
+This package includes a **Google Maps Platform Agent Skill** following the [AgentSkills.io](https://agentskills.io) specification. Agent Skills embed foundational context directly into your agent, reducing latency and eliminating the need for an extra `retrieve-instructions` tool call before each query.
+
+### Benefits
+
+- **Reduced Latency**: Context is loaded at startup, not on every query
+- **Improved Reliability**: Works even if the backend RAG service is slow or unavailable
+- **Progressive Disclosure**: Only loads detailed reference files when needed
+- **Cross-Platform**: Compatible with Claude Code, Cursor, Windsurf, Roo Code, Gemini CLI, and more
+
+### Skill Installation
+
+The skill is included in the `skills/` directory of this package. To install:
+
+**Claude Code:**
+```bash
+# Copy skill to Claude skills directory
+cp -r $(npm root -g)/@googlemaps/code-assist-mcp/skills/google-maps-platform ~/.claude/skills/
+```
+
+**Cursor / Windsurf / VS Code:**
+Add to your workspace's `.cursor/skills/` or `.windsurf/skills/` directory:
+```bash
+cp -r node_modules/@googlemaps/code-assist-mcp/skills/google-maps-platform .cursor/skills/
+```
+
+**Manual Installation:**
+1. Download the skill from the npm package or GitHub repository
+2. Place the `google-maps-platform/` folder in your agent's skills directory
+3. The skill includes:
+   - `SKILL.md` - Core instructions and API selection guides
+   - `references/` - Detailed code examples, decision trees, and compliance info
+
+### Skill Contents
+
+| File | Description |
+|------|-------------|
+| `SKILL.md` | Core instructions, API selection tables, best practices |
+| `references/code-examples.md` | Platform-specific examples (Web, Android, iOS, Flutter) |
+| `references/decision-trees.md` | API selection flowcharts |
+| `references/eea-compliance.md` | EU Digital Markets Act requirements |
+| `references/attribution.md` | Attribution ID integration guide |
+
+> **Note:** The skill complements the MCP server - use both together for the best experience. The skill provides static context while the MCP server provides real-time documentation search.
+
+<!-- [END maps_AgentSkill] -->
+
+-----
+
 <!-- [START maps_Transports] -->
 
 ## Supported MCP Transports
