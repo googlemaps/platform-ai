@@ -62,110 +62,73 @@ The MCP server exposes the following tools for AI clients:
 <!-- [START maps_AgentSkill] -->
 ## Agent Skill (Optional)
 
-This package includes a **Google Maps Platform Agent Skill** following the [AgentSkills.io](https://agentskills.io) specification. Agent Skills embed foundational context directly into your agent, reducing latency and eliminating the need for an extra `retrieve-instructions` tool call before each query.
+This package includes the **Google Maps Platform Developer Skill** (`google-maps-platform-dev`), a unified and optimized skill following the [AgentSkills.io](https://agentskills.io) specification. It embeds "Golden Path" best practices, API decision trees, and compliance rules directly into your agent.
 
-### Benefits
+### Capabilities (In Scope)
 
-- **Reduced Latency**: Context is loaded at startup, not on every query
-- **Improved Reliability**: Works even if the backend RAG service is slow or unavailable
-- **Progressive Disclosure**: Only loads detailed reference files when needed
-- **Cross-Platform**: Compatible with Claude Code, Cursor, Windsurf, Roo Code, Gemini CLI, and more
+The skill is designed to handle the full development lifecycle for Google Maps Platform:
+
+*   **API Selection**: Automatically selects the right API (e.g., Places API (New) vs. Places UI Kit) based on cost, performance, and compliance (EEA).
+*   **"Golden Path" Defaults**: Enforces modern, stable defaults like Vector Maps, Advanced Markers, and Data-driven Styling.
+*   **Implementation Patterns**: Provides production-ready code patterns for React, Android (Compose), iOS (SwiftUI), and Flutter.
+*   **Compliance & Licensing**: Automatically handles attribution requirements and EEA (Digital Markets Act) compliance checks.
+*   **Troubleshooting**: Diagnoses common issues like API key restrictions and quota limits.
 
 ### Skill Installation
 
-The skill is included in the `skills/` directory of this package. Choose your preferred installation method:
+The skill is located in the `skills/google-maps-platform-dev/` directory.
 
 #### Gemini CLI - Local Clone (Recommended)
 
-If you've cloned the repository, install directly from the local directory:
-
 ```bash
-# From the repo root (google-maps-platform-ai/)
-gemini skills install ./packages/code-assist/skills/google-maps-platform
+# From the repo root
+gemini skills install ./packages/code-assist/skills/google-maps-platform-dev
 ```
 
 #### Gemini CLI - From GitHub
 
-Install directly from GitHub without cloning:
-
 ```bash
-# Install to user scope (~/.gemini/skills) - available across all workspaces
-gemini skills install https://github.com/googlemaps/google-maps-platform-ai.git \
-  --path packages/code-assist/skills/google-maps-platform
-
-# Or install to workspace scope (.gemini/skills) - project-specific
-gemini skills install https://github.com/googlemaps/google-maps-platform-ai.git \
-  --path packages/code-assist/skills/google-maps-platform \
-  --scope workspace
+# Install to user scope
+gemini skills install https://github.com/googlemaps/platform-ai.git \
+  --path packages/code-assist/skills/google-maps-platform-dev
 ```
-
-After installation, verify with:
-```bash
-gemini skills list
-```
-
-**Using the Skill:**
-
-Once installed, the skill is **automatically activated** when your conversation involves Google Maps Platform topics. Just ask Gemini CLI any mapping question:
-
-```bash
-gemini
-> How do I add a marker to a Google Map in JavaScript?
-> What's the difference between Places API and Places API (New)?
-> Show me how to calculate a driving route with the Routes API
-```
-
-The skill provides context automatically - no extra commands needed. Gemini will use the skill's API selection guides, code examples, and best practices when responding.
 
 #### npm + Gemini CLI
 
-If you have the npm package installed, point Gemini CLI to the local skill:
-
 ```bash
-# Install the npm package first
+# Install the npm package
 npm install @googlemaps/code-assist-mcp
 
-# Then install the skill from node_modules
-gemini skills install ./node_modules/@googlemaps/code-assist-mcp/skills/google-maps-platform
+# Install skill from node_modules
+gemini skills install ./node_modules/@googlemaps/code-assist-mcp/skills/google-maps-platform-dev
 ```
 
 #### Claude Code
 
 ```bash
-# Copy skill to Claude skills directory
-cp -r $(npm root -g)/@googlemaps/code-assist-mcp/skills/google-maps-platform ~/.claude/skills/
+cp -r $(npm root -g)/@googlemaps/code-assist-mcp/skills/google-maps-platform-dev ~/.claude/skills/
 ```
 
 #### Cursor / Windsurf / VS Code
 
 Add to your workspace's `.cursor/skills/` or `.windsurf/skills/` directory:
 ```bash
-cp -r node_modules/@googlemaps/code-assist-mcp/skills/google-maps-platform .cursor/skills/
+cp -r node_modules/@googlemaps/code-assist-mcp/skills/google-maps-platform-dev .cursor/skills/
 ```
-
-#### Manual Installation
-
-1. Download the skill from the [npm package](https://www.npmjs.com/package/@googlemaps/code-assist-mcp) or [GitHub repository](https://github.com/googlemaps/google-maps-platform-ai)
-2. Place the `google-maps-platform/` folder in your agent's skills directory:
-   - **Gemini CLI**: `~/.gemini/skills/` (user) or `.gemini/skills/` (workspace)
-   - **Claude Code**: `~/.claude/skills/`
-   - **Cursor**: `.cursor/skills/`
-   - **Windsurf**: `.windsurf/skills/`
-3. The skill includes:
-   - `SKILL.md` - Core instructions and API selection guides
-   - `references/` - Detailed code examples, decision trees, and compliance info
 
 ### Skill Contents
 
 | File | Description |
 |------|-------------|
-| `SKILL.md` | Core instructions, API selection tables, best practices |
-| `references/code-examples.md` | Platform-specific examples (Web, Android, iOS, Flutter) |
-| `references/decision-trees.md` | API selection flowcharts |
-| `references/eea-compliance.md` | EU Digital Markets Act requirements |
-| `references/attribution.md` | Attribution ID integration guide |
+| `SKILL.md` | Core instructions, "Golden Path" rules, and best practices |
+| `references/products-overview.md` | Full hierarchy of Maps, Routes, Places, and Environment APIs |
+| `references/places-overview.md` | Decision guide for Places API (New) vs. Places UI Kit |
+| `references/routes-navigation.md` | Decision guide for Routes API vs. Navigation SDK |
+| `references/environment-apis.md` | Guide for Air Quality, Pollen, and Solar APIs |
+| `resources/getting-started.md` | "DIRT Simple" API key setup and troubleshooting |
+| `resources/platform-*.md` | Implementation patterns for React, Android, iOS, etc. |
 
-> **Note:** The skill complements the MCP server - use both together for the best experience. The skill provides static context while the MCP server provides real-time documentation search.
+> **Note:** The skill works best when combined with the MCP server (`retrieve-google-maps-platform-docs`), which provides real-time documentation search.
 
 <!-- [END maps_AgentSkill] -->
 
