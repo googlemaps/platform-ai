@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### ✨ Features
+
+*   **Agent Skill (AgentSkills.io):** Added a Google Maps Platform Agent Skill following the [AgentSkills.io](https://agentskills.io) specification. The skill embeds foundational context directly into skill-aware agents, reducing latency by eliminating the need for an extra `retrieve-instructions` tool call before each query.
+    *   `skills/google-maps-platform/SKILL.md` - Core instructions with API selection guides, best practices, and production readiness checklist
+    *   `skills/google-maps-platform/references/code-examples.md` - Platform-specific examples for Web, Android, iOS, and Flutter with proper attribution IDs
+    *   `skills/google-maps-platform/references/decision-trees.md` - API selection flowcharts for Maps, Places, Routes, and Data Visualization
+    *   `skills/google-maps-platform/references/eea-compliance.md` - EU Digital Markets Act requirements
+    *   `skills/google-maps-platform/references/attribution.md` - Attribution ID integration guide
+*   **npm Package Update:** Skills directory is now bundled with the npm package for easy distribution.
+
+### 📚 Documentation
+
+*   Added Agent Skill section to `README.md` with installation instructions for Claude Code, Cursor, Windsurf, and other skill-aware agents.
+
 ## [0.1.7] - 2025-08-28
 
 ### ✨ Features
