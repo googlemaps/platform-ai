@@ -75,9 +75,18 @@ This package includes a **Google Maps Platform Agent Skill** following the [Agen
 
 The skill is included in the `skills/` directory of this package. Choose your preferred installation method:
 
-#### Gemini CLI (Recommended)
+#### Gemini CLI - Local Clone (Recommended)
 
-Install directly from GitHub using the `gemini skills install` command:
+If you've cloned the repository, install directly from the local directory:
+
+```bash
+# From the repo root (google-maps-platform-ai/)
+gemini skills install ./packages/code-assist/skills/google-maps-platform
+```
+
+#### Gemini CLI - From GitHub
+
+Install directly from GitHub without cloning:
 
 ```bash
 # Install to user scope (~/.gemini/skills) - available across all workspaces
@@ -94,6 +103,19 @@ After installation, verify with:
 ```bash
 gemini skills list
 ```
+
+**Using the Skill:**
+
+Once installed, the skill is **automatically activated** when your conversation involves Google Maps Platform topics. Just ask Gemini CLI any mapping question:
+
+```bash
+gemini
+> How do I add a marker to a Google Map in JavaScript?
+> What's the difference between Places API and Places API (New)?
+> Show me how to calculate a driving route with the Routes API
+```
+
+The skill provides context automatically - no extra commands needed. Gemini will use the skill's API selection guides, code examples, and best practices when responding.
 
 #### npm + Gemini CLI
 

@@ -77,6 +77,24 @@ These overseas territories of EEA members are also covered:
 - Azores and Madeira (Portugal)
 - French overseas departments (Martinique, Guadeloupe, Réunion, French Guiana, Mayotte)
 
+## Places API Availability in EEA
+
+**CRITICAL:** In the EEA, **Places UI Kit is the ONLY option** for Places functionality.
+
+| Product | Available in EEA? |
+|---------|-------------------|
+| **Places UI Kit** | ✅ **Yes** - Required for EEA |
+| Extended Component Library | ❌ No |
+| Places API (New) | ❌ No |
+| Places API (Legacy) | ❌ No |
+| Geocoding API | ✅ Yes |
+| Address Validation API | ✅ Yes |
+
+**What this means:**
+- If building for EEA users, you **must** use Places UI Kit for autocomplete, place details, and search
+- Places UI Kit is available as HTML Web Components (vanilla JS), React, Android Compose, and SwiftUI
+- On web, you can use Places UI Kit directly as standard HTML elements - no framework required
+
 ## Compliance Actions
 
 When a user's request involves EEA locations:
