@@ -1,0 +1,7 @@
+{
+  "google-maps-platform-code-assist": {
+    "type": "stdio",
+    "command": "npx",
+    "args": ["-y", "@googlemaps/code-assist-mcp@latest"]
+  }
+}
