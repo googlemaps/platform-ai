@@ -142,6 +142,7 @@ Add the remote server URL to your preferred AI client's MCP configuration file o
 
    ```toml
    [mcp_servers.google-maps-platform-code-assist]
+   transport = "sse"
    url = "https://mapscodeassist.googleapis.com/mcp"
    ```
 

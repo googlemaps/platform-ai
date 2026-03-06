@@ -8,7 +8,6 @@
   },
   "mcpServers": {
     "google-maps-platform-code-assist": {
-      "type": "sse",
       "url": "https://mapscodeassist.googleapis.com/mcp"
     }
   },
