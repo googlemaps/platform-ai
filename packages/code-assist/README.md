@@ -86,7 +86,7 @@ Add the remote server URL to your preferred AI client's MCP configuration file o
      ```
    - Option 2 - Use the `mcp add` CLI command to add the server cleanly:
      ```bash
-     gemini mcp add google-maps-platform-code-assist sse https://mapscodeassist.googleapis.com/mcp
+     gemini mcp add --transport sse google-maps-platform-code-assist https://mapscodeassist.googleapis.com/mcp
      ```
    - Option 3 - Add the MCP server config manually to your `~/.gemini/settings.json` file (or `.gemini/settings.json` in your project root).
 
@@ -94,7 +94,6 @@ Add the remote server URL to your preferred AI client's MCP configuration file o
    {
      "mcpServers": {
        "google-maps-platform-code-assist": {
-         "type": "sse",
          "url": "https://mapscodeassist.googleapis.com/mcp"
        }
      }
