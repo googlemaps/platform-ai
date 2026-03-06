@@ -36,3 +36,12 @@ After using tools to gather information:
 - Always call `retrieve-instructions` first to get current best practices
 - Use `retrieve-google-maps-platform-docs` with specific queries about implementation details
 - Include proper error handling and security considerations in all code examples
+
+**MCP Client Setup Knowledge & Docs**
+When setting up or debugging remote MCP servers (like Code Assist), it's critical to understand that modern implementations use **Streamable HTTP** endpoints (single-connection HTTP POST/GET streams) rather than the legacy two-connection SSE architectures. Keep the following client-specific formats in mind:
+- **MCP Spec** ([Docs](https://modelcontextprotocol.io/docs/concepts/transports)): Official reference distinguishing `stdio`, `streamable-http`, and legacy `sse`.
+- **Gemini CLI** ([Docs](https://geminicli.com/docs/tools/mcp-server/)): Uses `--transport http` in the CLI. In `settings.json` and `gemini-extension.json`, it uniquely requires the `httpUrl` property instead of the standard `url` and `type` fields.
+- **Gemini Extensions** ([Docs](https://geminicli.com/docs/extensions/)): The recommended distribution mechanism is packaging the MCP server config alongside this very `GEMINI.md` and `SKILLS.md` into an extension (installed via `gemini extensions install <git_url>`).
+- **Claude Code** ([Docs](https://docs.anthropic.com/en/docs/agents-and-tools/claude-code/overview)): Uses the `claude mcp add <name> http <url>` CLI command. Manual configs define the `mcpServers` object with `"type": "streamable-http"`.
+- **Cursor** ([Docs](https://docs.cursor.com/context/model-context-protocol)): Configured in `~/.cursor/mcp.json`. It expects the conventional `"type": "http"`. Deep links are supported using a base64 encoded config payload.
+- **Codex**: Utilizes a TOML configuration file. It requires specifying `transport = "http"` manually in `~/.codex/config.toml`, or simply using `codex mcp add <name> --url <url>`.
