@@ -135,17 +135,15 @@ Add the remote server URL to your preferred AI client's MCP configuration file o
    ```
 
 4. **Codex**
-   - Add the following to your Codex configuration to enable the remote MCP server:
+   - The easiest way to connect Codex to the remote server is via the CLI:
+     ```bash
+     codex mcp add google-maps-platform-code-assist --url https://mapscodeassist.googleapis.com/mcp
+     ```
+   - If you prefer manual configuration, add the following to your `~/.codex/config.toml` or your project's `.codex/config.toml`:
 
-   ```json
-   {
-     "mcpServers": {
-       "google-maps-platform-code-assist": {
-         "type": "sse",
-         "url": "https://mapscodeassist.googleapis.com/mcp"
-       }
-     }
-   }
+   ```toml
+   [mcp_servers.google-maps-platform-code-assist]
+   url = "https://mapscodeassist.googleapis.com/mcp"
    ```
 
 5. **Antigravity**
