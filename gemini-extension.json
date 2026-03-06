@@ -8,7 +8,7 @@
   },
   "mcpServers": {
     "google-maps-platform-code-assist": {
-      "url": "https://mapscodeassist.googleapis.com/mcp"
+      "httpUrl": "https://mapscodeassist.googleapis.com/mcp"
     }
   },
   "theme": "gmp-theme.json"
