@@ -29,7 +29,7 @@ Google Maps Platform resources that the MCP server can access include:
 
 - Make your favorite AI assistant or IDE an expert on the Google Maps Platform. With Code Assist, AI Agents like Gemini CLI, Claude Code, and Cursor can generate code and answer developer questions grounded in up-to-date, official Google Maps Platform documentation and code samples -- directly in your dev workflow.
 
-- Whether you are making precision AI-Assisted code changes or vibecoding a new app prototype - Code Assist can help you accomplish your task faster and easier.
+- Whether you are making precision AI-Assisted code changes or building applications with Google Maps Platform using AI agents - Code Assist can help you accomplish your task faster and easier.
 
 <!-- [START_EXCLUDE] -->
 
@@ -51,9 +51,11 @@ Below is an example MCP Client response to a user's question with Code Assist MC
 
 The MCP server exposes the following tools for AI clients:
 
-1. **`retrieve-instructions`**: A helper tool used by the client to get crucial system instructions on how to best reason about user intent and formulate effective calls to the `retrieve-google-maps-platform-docs` tool.
-2. **`retrieve-google-maps-platform-docs`**: The primary tool. It takes a natural language query and submits it to a hosted Retrieval Augmented Generation (RAG) engine. The RAG engine searches fresh versions of official Google Maps Platform documentation, tutorials, and code samples, returning relevant context to the AI to generate an accurate response.
-<!-- [END maps_Tools] -->
+1. **`retrieve-google-maps-platform-docs`**: Searches Google Maps Platform documentation, code samples, architecture center, and GitHub repositories via RAG.
+   - *Parameters*: `llmQuery` (Required string query), `filter` (Optional API/product area filter), `source` (Optional string caller identifier up to 64 chars).
+2. **`retrieve-instructions`**: Retrieves foundational context on Google Maps Platform best practices.
+   - *Parameters*: `name` (Required string, expected format is simply "instructions").
+   <!-- [END maps_Tools] -->
 
 ---
 
@@ -73,6 +75,9 @@ This remote server supports standard MCP communication protocols:
 
 ## Usage
 
+> [!WARNING]
+> We will be deprecating the version of this package on NPM, and it will no longer be available as of [XX date - to be completed]. Please use the securely hosted remote version as the primary method of connection, as documented below.
+
 The Code Assist MCP server is securely hosted by Google. To use it, you must configure your AI client to connect to the remote URL via streamable HTTP.
 
 ### Configure Your Client
@@ -84,17 +89,17 @@ Add the remote server URL to your preferred AI client's MCP configuration file o
      ```bash
      gemini extensions install https://github.com/googlemaps/platform-ai.git
      ```
-     *(Alternatively, you can install it directly from the Extension Marketplace using `gemini extensions install google-maps-platform`)*
+     _(Alternatively, you can install it directly from the Extension Marketplace using `gemini extensions install google-maps-platform`)_
    - Option 2 - Use the `mcp add` CLI command to add the server cleanly:
      ```bash
-     gemini mcp add --transport http google-maps-platform-code-assist https://mapscodeassist.googleapis.com/mcp
+     gemini mcp add --transport http gmp-code-assist https://mapscodeassist.googleapis.com/mcp
      ```
    - Option 3 - Add the MCP server config manually to your `~/.gemini/settings.json` file (or `.gemini/settings.json` in your project root).
 
    ```json
    {
      "mcpServers": {
-       "google-maps-platform-code-assist": {
+       "gmp-code-assist": {
          "httpUrl": "https://mapscodeassist.googleapis.com/mcp"
        }
      }
@@ -104,14 +109,14 @@ Add the remote server URL to your preferred AI client's MCP configuration file o
 2. **Claude Code**
    - The cleanest way to add the remote server is via the `mcp add` CLI command:
      ```bash
-     claude mcp add google-maps-platform-code-assist http https://mapscodeassist.googleapis.com/mcp
+     claude mcp add gmp-code-assist http https://mapscodeassist.googleapis.com/mcp
      ```
    - Alternatively, add the server manually to your Claude config file `~/.claude.json`:
 
    ```json
    {
      "mcpServers": {
-       "google-maps-platform-code-assist": {
+       "gmp-code-assist": {
          "type": "streamable-http",
          "url": "https://mapscodeassist.googleapis.com/mcp"
        }
@@ -126,7 +131,7 @@ Add the remote server URL to your preferred AI client's MCP configuration file o
    ```json
    {
      "mcpServers": {
-       "google-maps-platform-code-assist": {
+       "gmp-code-assist": {
          "type": "http",
          "url": "https://mapscodeassist.googleapis.com/mcp"
        }
@@ -137,23 +142,24 @@ Add the remote server URL to your preferred AI client's MCP configuration file o
 4. **Codex**
    - The easiest way to connect Codex to the remote server is via the CLI:
      ```bash
-     codex mcp add google-maps-platform-code-assist --url https://mapscodeassist.googleapis.com/mcp
+     codex mcp add gmp-code-assist --url https://mapscodeassist.googleapis.com/mcp
      ```
    - If you prefer manual configuration, add the following to your `~/.codex/config.toml` or your project's `.codex/config.toml`:
 
    ```toml
-   [mcp_servers.google-maps-platform-code-assist]
+   [mcp_servers.gmp-code-assist]
    transport = "http"
    url = "https://mapscodeassist.googleapis.com/mcp"
    ```
 
 5. **Antigravity**
-   - The easiest way to install is via the built-in MCP Store: Open the `...` menu in the agent panel, select **MCP Servers**, find **Google Maps Platform**, and click **Install**. 
+   - The easiest way to install is via the built-in MCP Store: Open the `...` menu in the agent panel, select **MCP Servers**, find **Google Maps Platform**, and click **Install**.
    - Alternatively, add the streamable HTTP endpoint to your `mcp_config.json`:
+
    ```json
    {
      "mcpServers": {
-       "google-maps-platform-code-assist": {
+       "gmp-code-assist": {
          "type": "streamable-http",
          "url": "https://mapscodeassist.googleapis.com/mcp"
        }
@@ -169,7 +175,7 @@ Add the remote server URL to your preferred AI client's MCP configuration file o
    ```json
    {
      "mcpServers": {
-       "google-maps-platform-code-assist": {
+       "gmp-code-assist": {
          "httpUrl": "https://mapscodeassist.googleapis.com/mcp"
        }
      }
