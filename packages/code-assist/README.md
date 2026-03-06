@@ -84,6 +84,7 @@ Add the remote server URL to your preferred AI client's MCP configuration file o
      ```bash
      gemini extensions install https://github.com/googlemaps/platform-ai.git
      ```
+     *(Alternatively, you can install it directly from the Extension Marketplace using `gemini extensions install google-maps-platform`)*
    - Option 2 - Use the `mcp add` CLI command to add the server cleanly:
      ```bash
      gemini mcp add --transport http google-maps-platform-code-assist https://mapscodeassist.googleapis.com/mcp
@@ -147,13 +148,29 @@ Add the remote server URL to your preferred AI client's MCP configuration file o
    ```
 
 5. **Antigravity**
-   - In your Antigravity configuration or workspace settings, add the streamable HTTP endpoint:
+   - The easiest way to install is via the built-in MCP Store: Open the `...` menu in the agent panel, select **MCP Servers**, find **Google Maps Platform**, and click **Install**. 
+   - Alternatively, add the streamable HTTP endpoint to your `mcp_config.json`:
    ```json
    {
      "mcpServers": {
        "google-maps-platform-code-assist": {
          "type": "streamable-http",
          "url": "https://mapscodeassist.googleapis.com/mcp"
+       }
+     }
+   }
+   ```
+
+6. **Android Studio**
+   - Go to **File** (or Android Studio on macOS) > **Settings** > **Tools** > **AI** > **MCP Servers**.
+   - Select **Enable MCP Servers**.
+   - Add the configuration. This will be saved in your Android Studio's `mcp.json` file:
+
+   ```json
+   {
+     "mcpServers": {
+       "google-maps-platform-code-assist": {
+         "httpUrl": "https://mapscodeassist.googleapis.com/mcp"
        }
      }
    }
