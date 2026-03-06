@@ -1,0 +1,4 @@
+total 24
+drwxr-xr-x@ 3 ryanbaumann  primarygroup     96 Mar  6 13:08 .
+drwxr-xr-x@ 4 ryanbaumann  primarygroup    128 Jan 31 09:52 ..
+-rw-r--r--  1 ryanbaumann  primarygroup  10244 Jan 28 14:59 .DS_Store

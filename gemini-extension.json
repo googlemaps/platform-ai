@@ -3,13 +3,13 @@
   "version": "0.1.0",
   "description": "Ground agents on fresh, official Google Maps Platform documentation and code samples for optimal geo-related developer guidance and code",
   "contextFileName": "GEMINI.md",
+  "skills": {
+    "google-maps-platform-dev": "packages/code-assist/skills/google-maps-platform-dev"
+  },
   "mcpServers": {
     "google-maps-platform-code-assist": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@googlemaps/code-assist-mcp@latest"
-      ]
+      "type": "sse",
+      "url": "https://mapscodeassist.googleapis.com/mcp"
     }
   },
   "theme": "gmp-theme.json"
