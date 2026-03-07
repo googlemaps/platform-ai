@@ -5,17 +5,13 @@
 
 # <img height="48" width="48" src="https://avatars.githubusercontent.com/u/3717923?s=200&v=4" alt="Google Maps Platform Logo" /> Google Maps Platform Code Assist Toolkit
 
-_Alpha version_
-
 <!-- [START maps_Description] -->
 
 ## Description
 
-The Google Maps Platform Code Assist toolkit is a Model Context Protocol (MCP) server that enhances the responses from large language models (LLMs) used for developing applications with the Google Maps Platform by grounding the responses in the official, up-to-date documentation and code samples.
+Make your Agent a Google Maps Platform development expert. The Google Maps Platform Code Assist is a Model Context Protocol (MCP) server that enhances the responses from large language models (LLMs) used for developing applications with the Google Maps Platform by grounding the responses in the official, up-to-date documentation and code samples. 
 
-Since the MCP server accesses the content when the model is prompted, the LLM's context regarding Google Maps Platform does not have to be limited to the available data at the model's training date.
-
-Google Maps Platform resources that the MCP server can access include:
+Google Maps Platform resources that Agents can access with Code Assist MCP include:
 
 - Google Maps Platform Documentation
 - Google Maps Platform Terms of Service
@@ -29,16 +25,13 @@ Google Maps Platform resources that the MCP server can access include:
 
 - Make your favorite AI assistant or IDE an expert on the Google Maps Platform. With Code Assist, AI Agents like Gemini CLI, Claude Code, and Cursor can generate code and answer developer questions grounded in up-to-date, official Google Maps Platform documentation and code samples -- directly in your dev workflow.
 
-- Whether you are making precision AI-Assisted code changes or building applications with Google Maps Platform using AI agents - Code Assist can help you accomplish your task faster and easier.
+- When you are coding with AI Agent assistance, Code Assist can help you accomplish your task faster and easier.
 
 <!-- [START_EXCLUDE] -->
 
 Below is an example MCP Client response to a user's question with Code Assist MCP installed:
 
 ![](./code-assist-preview.jpg)
-
-> [\!NOTE]
-> This is the repository for an MCP server that provides access to Google Maps Platform documentation via a RAG service. It is not a Google Maps Platform Core Service.
 
 <!-- [END_EXCLUDE] -->
 <!-- [END maps_CTADevelopers] -->
@@ -52,9 +45,13 @@ Below is an example MCP Client response to a user's question with Code Assist MC
 The MCP server exposes the following tools for AI clients:
 
 1. **`retrieve-google-maps-platform-docs`**: Searches Google Maps Platform documentation, code samples, architecture center, and GitHub repositories via RAG.
-   - *Parameters*: `llmQuery` (Required string query), `filter` (Optional API/product area filter), `source` (Optional string caller identifier up to 64 chars).
+   - *Parameters*:
+     - `llmQuery` (Required string query),
+     - `filter` (Optional API/product area filter)
+     - `source` (Optional string caller identifier up to 64 chars).
 2. **`retrieve-instructions`**: Retrieves foundational context on Google Maps Platform best practices.
-   - *Parameters*: `name` (Required string, expected format is simply "instructions").
+   - *Parameters*:
+     - `name` (Required string, expected format is simply "instructions").
    <!-- [END maps_Tools] -->
 
 ---
@@ -63,9 +60,7 @@ The MCP server exposes the following tools for AI clients:
 
 ## Supported MCP Transports
 
-This remote server supports standard MCP communication protocols:
-
-- **`streamable HTTP`**: The server exposes a `/mcp` endpoint that accepts POST requests over the HTTPS protocol. This is the modern, official standard for remote MCP server connections, replacing legacy HTTP+SSE split endpoints.
+- **`streamable HTTP`**: The server exposes a `/mcp` endpoint that accepts POST requests over the HTTPS protocol. See more details in the [Transports doc of the MCP spec](https://modelcontextprotocol.io/specification/2025-03-26/basic/transports#streamable-http).
 
 <!-- [END maps_Transports] -->
 
@@ -76,9 +71,9 @@ This remote server supports standard MCP communication protocols:
 ## Usage
 
 > [!WARNING]
-> We will be deprecating the version of this package on NPM, and it will no longer be available as of [XX date - to be completed]. Please use the securely hosted remote version as the primary method of connection, as documented below.
+> We will be deprecating the NPM version of Code Assist. It will no longer be available as of [XX date - to be completed]. Please use the remote streamable HTTP version at `https://mapscodeassist.googleapis.com/mcp`.
 
-The Code Assist MCP server is securely hosted by Google. To use it, you must configure your AI client to connect to the remote URL via streamable HTTP.
+The Code Assist MCP server is securely hosted by Google. No authentication is required. To use it, you must configure your AI client to connect to the remote URL via streamable HTTP.
 
 ### Configure Your Client
 
