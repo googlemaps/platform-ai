@@ -29,7 +29,7 @@ npm install -g @google/gemini-cli
 ```
 
 2. Install the Google Maps Platform extension
-   - Option 1 - Install Code Assist as a Gemini CLI extension with static preamble, the MCP tool, and basic Google Maps theme:
+   - Option 1 - Install Code Assist as a Gemini CLI extension with a skill, the Code Assist MCP tool, and a Google Maps Platform CLI theme:
      ```bash
      gemini extensions install https://github.com/googlemaps/platform-ai.git
      ```
@@ -54,12 +54,8 @@ For information about installing and using the toolkit with any MCP client, as w
 
 Use these example prompts to get started with the Code Assist MCP server or supported AI agents:
 
-- Show me how to use the Routes API in Node.js.
-- What are the authentication options for Google Maps Platform?
-- Give me a code sample for displaying a map with markers.
-- Explain the difference between Place Autocomplete and Place Search.
-- How do I set up billing for Google Maps Platform?
-
-<!--repo-specific anchor links-->
-
-[npm-pkg]: https://npmjs.com/package/@googlemaps/code-assist-mcp
+- Show me how to use the Routes API and display it on a Map in React + Typescript.
+- I'm upgrading my map from 2D to 3D Phtotorealistic - what are my options and how would I do that with my existing codebase?
+- Change my Places API (new) Text Search API implementtaion to use Places UI Kit. Estimate the amount of cost savings per user this change will make.
+- Explain the difference between Address Validation and Geocoding. Which one should I apply for my current codebase for an ecommmerce checkout use case and why? 
+- I need an API key - can you get one and add it to my app envrionment secrets?
