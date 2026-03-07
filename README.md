@@ -22,7 +22,7 @@ You have access to the `gmp-code-assist` MCP server with these essential tools:
 
 ## Install the Google Maps Platform Code Assist extension for [Gemini CLI](https://geminicli.com/)
 
-1. Install the Gemini CLI ([alternative installation methods](https://geminicli.com/docs/get-started/deployment/))
+1. Install the Gemini CLI ([alternative installation methods](https://geminicli.com/docs/get-started/installation/))
 
 ```bash
 npm install -g @google/gemini-cli
