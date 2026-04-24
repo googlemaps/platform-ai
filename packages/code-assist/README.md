@@ -44,14 +44,14 @@ Below is an example MCP Client response to a user's question with Code Assist MC
 
 The MCP server exposes the following tools for AI clients:
 
-1. **`retrieve-google-maps-platform-docs`**: Searches Google Maps Platform documentation, code samples, architecture center, and GitHub repositories via RAG.
+1. **`retrieve-instructions`**: Retrieves foundational context on Google Maps Platform best practices.
+   - *Parameters*:
+     - `name` (Required string, expected format is simply "instructions").
+2. **`retrieve-google-maps-platform-docs`**: Searches Google Maps Platform documentation, code samples, architecture center, and GitHub repositories via RAG.
    - *Parameters*:
      - `llmQuery` (Required string query),
      - `filter` (Optional API/product area filter)
      - `source` (Optional string caller identifier up to 64 chars).
-2. **`retrieve-instructions`**: Retrieves foundational context on Google Maps Platform best practices.
-   - *Parameters*:
-     - `name` (Required string, expected format is simply "instructions").
    <!-- [END maps_Tools] -->
 
 ---
