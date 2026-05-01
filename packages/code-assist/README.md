@@ -23,9 +23,9 @@ Google Maps Platform resources that Agents can access with Code Assist MCP inclu
 
 ## Benefits
 
-- Make your favorite AI assistant or IDE an expert on the Google Maps Platform. With Code Assist, AI Agents like Gemini CLI, Claude Code, and Cursor can generate code and answer developer questions grounded in up-to-date, official Google Maps Platform documentation and code samples -- directly in your dev workflow.
-
-- When you are coding with AI Agent assistance, Code Assist can help you accomplish your task faster and easier.
+- Works with any AI Agents e.g. Gemini CLI, Antigravity, Claude Code, Codex, Cursor - any Agent that supports MCP servers.
+- Accomplish your Google Maps Platform coding task task faster and easier.
+- Build with the most up-to-date Google Maps Platform products such as Places UI Kit and the Maps JS API "3D" features.
 
 <!-- [START_EXCLUDE] -->
 
