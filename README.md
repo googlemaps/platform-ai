@@ -7,7 +7,7 @@
 ## **Description**
 
 > [!WARNING]
-> We will be deprecating the NPM version of Code Assit, and it will no longer be available as of [XX date - to be completed]. Please use the securely hosted remote MCP version docuemnted in this README as the primary method of connection.
+> The npm version of Google Maps Platform Code Assist is deprecated. It will no longer be available as of July 1, 2026. Please use the securely hosted remote MCP version documented in this README as the primary method of connection.
 
 This repository contains the [Google Maps Platform Code Assist toolkit](packages/code-assist/README.md), a Model Context Protocol (MCP) server that enhances the responses from large language models (LLMs) used for developing applications with the Google Maps Platform by grounding them in the official, up-to-date documentation and code samples.
 
