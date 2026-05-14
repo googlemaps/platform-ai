@@ -1,6 +1,7 @@
 {
   "name": "@googlemaps/code-assist-mcp",
   "version": "0.2.1",
+  "deprecated": "The npm version of Code Assist is deprecated. It will be decommissioned on July 1, 2026. Please use the remote streamable HTTP version at https://mapscodeassist.googleapis.com/mcp",
   "mcpName": "io.github.googlemaps/code-assist-mcp",
   "main": "dist/index.js",
   "type": "module",
