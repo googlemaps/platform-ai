@@ -29,7 +29,7 @@ npm install -g @google/gemini-cli
 ```
 
 2. Install the Google Maps Platform extension
-   - Option 1 - Install Code Assist as a Gemini CLI extension with a skill, the Code Assist MCP tool, and a Google Maps Platform CLI theme:
+   - Option 1 - Install Code Assist as a Gemini CLI extension (includes context prompt, Code Assist MCP tool, and Google Maps Platform CLI theme):
      ```bash
      gemini extensions install https://github.com/googlemaps/platform-ai.git
      ```
@@ -39,12 +39,21 @@ npm install -g @google/gemini-cli
      ```json
      {
        "mcpServers": {
-         "gmp-code-assist": {
-           "httpUrl": "https://mapscodeassist.googleapis.com/mcp"
-         }
+        "gmp-code-assist": {
+          "httpUrl": "https://mapscodeassist.googleapis.com/mcp"
+        }
        }
      }
      ```
+
+## **Google Maps Platform Agent Skills**
+
+To equip your AI agents with specialized, portable Google Maps Platform workflows and best practices, check out the official [Google Maps Platform Agent Skills repository](https://github.com/googlemaps/agent-skills).
+
+Install the agent skills in Gemini CLI:
+```bash
+gemini skills install https://github.com/googlemaps/agent-skills.git
+```
 
 ## Install the Google Maps Platform Code Assist toolkit for other MCP clients.
 

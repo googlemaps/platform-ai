@@ -80,11 +80,16 @@ The Code Assist MCP server is securely hosted by Google. No authentication is re
 Add the remote server URL to your preferred AI client's MCP configuration file or settings UI. Find your client below for specific, verified instructions.
 
 1. **Gemini CLI**
-   - Option 1 (Recommended) - Install the Code Assist MCP server as a Gemini CLI extension. This provides the most complete experience, including specialized developer skills:
+   - Option 1 (Recommended) - Install the Code Assist MCP server as a Gemini CLI extension (includes context prompt, Code Assist MCP tool, and Google Maps Platform theme):
      ```bash
      gemini extensions install https://github.com/googlemaps/platform-ai.git
      ```
-     _(Alternatively, you can install it directly from the Extension Marketplace using `gemini extensions install google-maps-platform`)_
+     _(Alternatively, you can install it directly from the Extension Marketplace using `gemini extensions install google-maps-platform`.)_
+     
+     To also install Google Maps Platform Agent Skills, see [googlemaps/agent-skills](https://github.com/googlemaps/agent-skills):
+     ```bash
+     gemini skills install https://github.com/googlemaps/agent-skills.git
+     ```
    - Option 2 - Use the `mcp add` CLI command to add the server cleanly:
      ```bash
      gemini mcp add --transport http gmp-code-assist https://mapscodeassist.googleapis.com/mcp
